@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="linkedin-j">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/linkedin-j.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://D:/work/libs/linkedin-j/core/src/main/java" />
+      <root url="file://D:/work/libs/linkedin-j/core/src/test/java" />
+    </SOURCES>
+  </library>
+</component>
