@@ -46,6 +46,7 @@
         <jarDirectory url="file://D:/work/libs/linkedin-j/lib" recursive="false" />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="commons-daemon-1.0.14" level="project" />
   </component>
 </module>
 
