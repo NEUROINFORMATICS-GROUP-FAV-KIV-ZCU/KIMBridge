@@ -1,6 +1,7 @@
 package cz.zcu.kiv.eeg.KIMBridge.repository.linkedin;
 
 import com.google.code.linkedinapi.schema.Post;
+import com.google.code.linkedinapi.schema.Comment;
 import cz.zcu.kiv.eeg.KIMBridge.repository.ITextDocument;
 
 /**
@@ -15,11 +16,24 @@ public class LinkedInDocument implements ITextDocument {
 
 	@Override
 	public String getContents() {
-		return String.format("%s%n%s", postData.getTitle(), postData.getSummary());
+		return String.format("%s%n%s%n%n%s", postData.getTitle(), postData.getSummary(), getAllComments());
 	}
 
 	@Override
 	public String getTitle() {
 		return null;
+	}
+
+	private String getAllComments() {
+		StringBuilder str = new StringBuilder();
+		for (Comment comment : postData.getComments().getCommentList()) {
+			str.append(comment.getCreator().getFirstName());
+			str.append(" ");
+			str.append(comment.getCreator().getLastName());
+			str.append("\n");
+			str.append(comment.getText());
+			str.append("\n\n");
+		}
+		return str.toString();
 	}
 }
