@@ -60,4 +60,11 @@ public class KIMBridgeDocument {
 		document.setFeatures(metadata);
 	}
 
+
+	public void copyContentFrom(KIMBridgeDocument otherDoc) throws KIMCorporaException {
+		KIMDocument rawDoc = otherDoc.getDocument();
+		setTitle(otherDoc.getTitle());
+		document.setContent(rawDoc.getContent());
+	}
+
 }

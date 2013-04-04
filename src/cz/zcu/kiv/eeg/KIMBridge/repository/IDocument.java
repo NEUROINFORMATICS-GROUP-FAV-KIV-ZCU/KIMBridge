@@ -9,5 +9,9 @@ package cz.zcu.kiv.eeg.KIMBridge.repository;
  * @see ITextDocument
  */
 public interface IDocument {
+	public long getId();
+
+	public boolean isNew();
+
 	public String getTitle();
 }

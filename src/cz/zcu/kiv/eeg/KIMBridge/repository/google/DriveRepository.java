@@ -33,6 +33,10 @@ public class DriveRepository implements IDocumentRepository {
 		allowedMimeTypes = createDefaultAllowedMimeTypes();
 	}
 
+	@Override
+	public void documentIndexed(IDocument document, long kimId) {
+		// no action is required
+	}
 
 	private Set<String> createDefaultAllowedMimeTypes() {
 		Set<String> set = new HashSet<>();

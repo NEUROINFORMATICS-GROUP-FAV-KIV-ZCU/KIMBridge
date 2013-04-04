@@ -96,4 +96,29 @@ public class KIMConnector {
 	public void removeDocument(long id) throws DocumentRepositoryException {
 		docRepository.deleteDocument(id);
 	}
+
+
+	public KIMBridgeDocument updateDocument(long id, KIMBridgeDocument updatedDocument) throws KIMQueryException, KIMCorporaException {
+		KIMBridgeDocument repositoryDocument = getDocument(id);
+		repositoryDocument.copyContentFrom(updatedDocument);
+		return repositoryDocument;
+	}
+
+
+	/**
+	 * Synchronizes the search index.
+	 * @param force Forces immediate synchronization.
+	 * @throws DocumentRepositoryException when the index cannot be synchronized.
+	 */
+	public void synchronizeIndex(boolean force) throws DocumentRepositoryException {
+		docRepository.synchronizeIndex(force);
+	}
+
+	/**
+	 * Immediately synchronizes the search index.
+	 * @throws DocumentRepositoryException when the index cannot be synchronized.
+	 */
+	public void synchonizeIndex() throws DocumentRepositoryException {
+		synchronizeIndex(true);
+	}
 }

@@ -63,4 +63,9 @@ public class LinkedInConnector {
 		fields.add(PostField.CREATION_TIMESTAMP);
 		return fields;
 	}
+
+
+	public Post getPost(String postId) {
+		return client.getPost(postId, createPostFields());
+	}
 }

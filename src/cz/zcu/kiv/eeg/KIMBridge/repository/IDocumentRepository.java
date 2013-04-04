@@ -15,6 +15,8 @@ public interface IDocumentRepository {
 
 	public List<IDocument> getNewDocuments() throws RepositoryException;
 
+	public void documentIndexed(IDocument document, long kimId);
+
 	public Map<String, String> getState();
 
 	public void setState(Map<String, String> state) throws StateRestoreException;

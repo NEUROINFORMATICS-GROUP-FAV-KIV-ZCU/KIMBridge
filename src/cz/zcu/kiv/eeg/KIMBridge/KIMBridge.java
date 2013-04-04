@@ -53,26 +53,48 @@ public class KIMBridge {
 		}
 	}
 
-	/**
-	 *
-	 * @param title Title of created document.
-	 * @param string Textual content of the document.
-	 * @return Annotated an stored document.
-	 * @throws KIMBridgeException if the document could not be annotated or stored.
-	 */
-	public KIMBridgeDocument annotateString(String title, String string) throws KIMBridgeException {
+
+	public KIMBridgeDocument createDocumentFromString(String title, String text) throws KIMBridgeException {
 		try {
-			KIMBridgeDocument doc = kim.createDocumentFromString(string);
+			KIMBridgeDocument doc = kim.createDocumentFromString(text);
 			if (title != null) {
 				doc.setTitle(title);
 			}
-			return annotateAndStoreDocument(doc);
+			return doc;
+		} catch (KIMCorporaException e) {
+			throw new KIMBridgeException("Error while creating the document.", e);
+		}
+	}
+
+	public KIMBridgeDocument createDocumentFromBytes(byte[] data, String extension) throws KIMBridgeException {
+		try {
+			return kim.createDocumentFromBinaryData(data, extension);
 		} catch (KIMCorporaException e) {
 			throw new KIMBridgeException("Error while creating the document.", e);
 		}
 	}
 
 
+	/**
+	 *
+	 * @param title Title of created document.
+	 * @param text Textual content of the document.
+	 * @return Annotated an stored document.
+	 * @throws KIMBridgeException if the document could not be annotated or stored.
+	 */
+	public KIMBridgeDocument annotateString(String title, String text) throws KIMBridgeException {
+		KIMBridgeDocument doc = createDocumentFromString(title, text);
+		return annotateAndStoreDocument(doc);
+	}
+
+
+	/**
+	 * Annotates and stores a locally stored file.
+	 * @param file File to allocate.
+	 * @return
+	 * @throws IOException
+	 * @throws KIMBridgeException
+	 */
 	public KIMBridgeDocument annotateLocalFile(File file) throws IOException, KIMBridgeException {
 		Path path = Paths.get(file.getPath());
 		byte[] data = Files.readAllBytes(path);
@@ -80,7 +102,12 @@ public class KIMBridge {
 	}
 
 
-
+	/**
+	 *
+	 * @param path
+	 * @return
+	 * @throws KIMBridgeException
+	 */
 	private String extractFileExtension(Path path) throws KIMBridgeException{
 		String fileName = path.getFileName().toString();
 		int extPos = fileName.lastIndexOf(EXT_SEPARATOR);
@@ -92,12 +119,8 @@ public class KIMBridge {
 
 
 	public KIMBridgeDocument annotateBytes(byte[] data, String extension) throws KIMBridgeException {
-		try {
-			KIMBridgeDocument doc = kim.createDocumentFromBinaryData(data, extension);
-			return annotateAndStoreDocument(doc);
-		} catch (KIMCorporaException e) {
-			throw new KIMBridgeException("Error while creating the document.", e);
-		}
+		KIMBridgeDocument doc = createDocumentFromBytes(data, extension);
+		return annotateAndStoreDocument(doc);
 	}
 
 
@@ -143,11 +166,30 @@ public class KIMBridge {
 			kim.annotateDocument(document);
 			kim.synchronizeDocument(document);
 		} catch (DocumentRepositoryException e) {
-			throw new KIMBridgeException("Error while syncing the document.", e);
+			throw KIMBridgeException.synchronizingDocument(e);
 		} catch (RemoteException e) {
-			throw new KIMBridgeException("Error while annotating the document.", e);
+			throw KIMBridgeException.annotatingDocument(e);
 		} catch (KIMCorporaException e) {
-			throw new KIMBridgeException("Error while setting document metadata.", e);
+			throw KIMBridgeException.settingMetadata(e);
+		}
+	}
+
+
+	/**
+	 * Updates the document with given ID.
+	 * @param id ID of document in the repository.
+	 * @param updatedDocument Document containing updated contents.
+	 * @throws KIMBridgeException if the document cannot be updated.
+	 */
+	public KIMBridgeDocument updateDocument(long id, KIMBridgeDocument updatedDocument) throws KIMBridgeException {
+		try {
+			KIMBridgeDocument repoDoc = kim.updateDocument(id, updatedDocument);
+			reannotateDocument(repoDoc);
+			return repoDoc;
+		} catch (KIMCorporaException e) {
+			throw KIMBridgeException.settingMetadata(e);
+		} catch (KIMQueryException e) {
+			throw KIMBridgeException.fetchingDocument(e);
 		}
 	}
 
@@ -174,7 +216,7 @@ public class KIMBridge {
 		for (IDocumentRepository repository : repositories) {
 			try {
 				List<IDocument> documents = repository.getAllDocuments();
-				annotateDocumentList(documents);
+				annotateDocumentList(documents, repository);
 			} catch (RepositoryException e) {
 				throw new KIMBridgeException("Error while fetching documents.", e);
 			}
@@ -186,7 +228,7 @@ public class KIMBridge {
 		for (IDocumentRepository repository : repositories) {
 			try {
 				List<IDocument> newDocuments = repository.getNewDocuments();
-				annotateDocumentList(newDocuments);
+				annotateDocumentList(newDocuments, repository);
 			} catch (RepositoryException e) {
 				throw new KIMBridgeException("Error while fetching new documents.", e);
 			}
@@ -194,10 +236,10 @@ public class KIMBridge {
 	}
 
 
-	public void annotateDocumentList(List<IDocument> documents) throws KIMBridgeException{
+	public void annotateDocumentList(List<IDocument> documents, IDocumentRepository repository) throws KIMBridgeException{
 		for (IDocument document : documents) {
 			try {
-				annotateDocument(document);
+				annotateDocument(document, repository);
 			} catch (KIMBridgeException e) {
 				System.err.println(e.toString());
 			}
@@ -205,23 +247,35 @@ public class KIMBridge {
 	}
 
 
-	public void annotateDocument(IDocument document) throws KIMBridgeException {
+	public void annotateDocument(IDocument document, IDocumentRepository repository) throws KIMBridgeException {
+		KIMBridgeDocument kimDoc;
 		if (document instanceof ITextDocument) {
-			annotateTextDocument((ITextDocument) document);
+			kimDoc = annotateTextDocument((ITextDocument) document);
 		} else if (document instanceof IBinaryDocument) {
-			annotateBinaryDocument((IBinaryDocument) document);
+			kimDoc = annotateBinaryDocument((IBinaryDocument) document);
 		} else {
 			throw new KIMBridgeException("IDocument is generic interface and should not be implemented!");
 		}
+		repository.documentIndexed(document, kimDoc.getId());
 	}
 
-	private void annotateTextDocument(ITextDocument document) throws KIMBridgeException {
-		annotateString(document.getTitle(), document.getContents());
+	private KIMBridgeDocument annotateTextDocument(ITextDocument document) throws KIMBridgeException {
+		if (document.isNew()) {
+			return annotateString(document.getTitle(), document.getContents());
+		} else {
+			KIMBridgeDocument newDoc = createDocumentFromString(document.getTitle(), document.getContents());
+			return updateDocument(document.getId(), newDoc);
+		}
 	}
 
-	private void annotateBinaryDocument(IBinaryDocument document) throws KIMBridgeException {
+	private KIMBridgeDocument annotateBinaryDocument(IBinaryDocument document) throws KIMBridgeException {
 		try {
-			annotateBytes(document.getData(), document.getExtension());
+			if (document.isNew()) {
+				return annotateBytes(document.getData(), document.getExtension());
+			} else {
+				KIMBridgeDocument newDoc = createDocumentFromBytes(document.getData(), document.getExtension());
+				return updateDocument(document.getId(), newDoc);
+			}
 		} catch (IOException e) {
 			throw new KIMBridgeException("", e);
 		}

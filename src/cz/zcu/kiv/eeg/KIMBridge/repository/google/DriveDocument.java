@@ -22,6 +22,15 @@ public class DriveDocument implements IBinaryDocument {
 		file = fileMetadata;
 	}
 
+	@Override
+	public long getId() {
+		return 0;
+	}
+
+	@Override
+	public boolean isNew() {
+		return true;
+	}
 
 	@Override
 	public String getTitle() {

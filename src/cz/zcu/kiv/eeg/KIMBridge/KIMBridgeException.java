@@ -18,4 +18,23 @@ public class KIMBridgeException extends Exception {
 	public KIMBridgeException(Throwable cause) {
 		super(cause);
 	}
+
+
+
+
+	public static KIMBridgeException settingMetadata(Throwable cause) {
+		return new KIMBridgeException("Error while setting document metadata.", cause);
+	}
+
+	public static KIMBridgeException annotatingDocument(Throwable cause) {
+		return new KIMBridgeException("Error while annotating the document.", cause);
+	}
+
+	public static KIMBridgeException fetchingDocument(Throwable cause) {
+		return new KIMBridgeException("Error while fetching document from repository.", cause);
+	}
+
+	public static KIMBridgeException synchronizingDocument(Throwable cause) {
+		return new KIMBridgeException("Error while synchronizing document with document repository.", cause);
+	}
 }
