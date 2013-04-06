@@ -12,7 +12,8 @@ import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.ChangeList;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
-import cz.zcu.kiv.eeg.KIMBridge.Configurator;
+import cz.zcu.kiv.eeg.KIMBridge.ConfigurationException;
+import cz.zcu.kiv.eeg.KIMBridge.config.FactoryConfiguration;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -22,7 +23,6 @@ import java.security.GeneralSecurityException;
  * Google Drive connector.
  */
 public class DriveConnector {
-	private static final String CONFIG_PREFIX = "googledrive";
 	private static final String KEY_SERVICE_ACCOUNT_ID = "accountId";
 	private static final String KEY_SERVICE_PRIVATE_KEY = "privateKey";
 	private static final String KEY_APP_NAME = "appName";
@@ -30,19 +30,19 @@ public class DriveConnector {
 	private Drive drive;
 
 
-	public DriveConnector(Configurator configurator) throws GeneralSecurityException, IOException {
+	public DriveConnector(FactoryConfiguration configuration) throws GeneralSecurityException, IOException, ConfigurationException {
 		HttpTransport httpTransport = new NetHttpTransport();
 		JsonFactory jsonFactory = new JacksonFactory();
 
 		GoogleCredential credential = new GoogleCredential.Builder().setTransport(httpTransport)
 				.setJsonFactory(jsonFactory)
-				.setServiceAccountId(configurator.getPrefixed(CONFIG_PREFIX, KEY_SERVICE_ACCOUNT_ID))
-				.setServiceAccountPrivateKeyFromP12File(configurator.getFilePrefixed(CONFIG_PREFIX, KEY_SERVICE_PRIVATE_KEY))
+				.setServiceAccountId(configuration.getProperty(KEY_SERVICE_ACCOUNT_ID))
+				.setServiceAccountPrivateKeyFromP12File(new java.io.File(configuration.getProperty(KEY_SERVICE_PRIVATE_KEY)))
 				.setServiceAccountScopes(DriveScopes.DRIVE_READONLY)
 				.build();
 
 		drive = new Drive.Builder(httpTransport, jsonFactory, credential)
-				.setApplicationName(configurator.getPrefixed(CONFIG_PREFIX, KEY_APP_NAME))
+				.setApplicationName(configuration.getProperty(KEY_APP_NAME))
 				.build();
 	}
 

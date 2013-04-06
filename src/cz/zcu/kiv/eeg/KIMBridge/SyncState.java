@@ -1,9 +1,10 @@
 package cz.zcu.kiv.eeg.KIMBridge;
 
+import cz.zcu.kiv.eeg.KIMBridge.repository.IRepositoryState;
+
 import java.io.*;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
+import java.util.TreeMap;
 
 /**
  * @author Jan Smitka <jan@smitka.org>
@@ -13,65 +14,45 @@ public class SyncState {
 
 	private File storageFile;
 
-	private Properties state;
+	private Map<String, IRepositoryState> states;
 
 	public SyncState(File syncFile) {
-		state = new Properties();
+		states = new TreeMap<>();
 		storageFile = syncFile;
 	}
 
-	public void load() throws IOException {
-		if (storageFile.exists()) {
-			InputStream is = openInputStream();
-			state.load(is);
-			is.close();
-		}
+	public void load() throws IOException, ClassNotFoundException {
+		ObjectInputStream is = openInputStream();
+		states = (Map<String, IRepositoryState>) is.readObject();
+		is.close();
 	}
 
-	public void storeState(String repositoryId, Map<String, String> repoState) {
-		for (Map.Entry<String, String> entry : repoState.entrySet()) {
-			state.setProperty(prefixKey(entry.getKey(), repositoryId), entry.getValue());
-		}
+	public void storeState(String repositoryId, IRepositoryState repoState) {
+		states.put(repositoryId, repoState);
 	}
 
 
-	public Map<String, String> restoreState(String repositoryId) {
-		Map<String, String> repoState = new HashMap<>();
-		for (String key : state.stringPropertyNames()) {
-			if (hasRepositoryPrefix(key, repositoryId)) {
-				repoState.put(removePrefix(key, repositoryId), state.getProperty(key));
-			}
-		}
-		return repoState;
+	public IRepositoryState restoreState(String repositoryId) {
+		return states.get(repositoryId);
 	}
 
 
 	public void save() throws IOException {
-		OutputStream os = openOutputStream();
-		state.store(os, SYNC_COMMENT);
+		ObjectOutputStream os = openOutputStream();
+		os.writeObject(states);
 		os.close();
 	}
 
 
-	private InputStream openInputStream() throws FileNotFoundException {
+	private ObjectInputStream openInputStream() throws IOException {
 		FileInputStream fs = new FileInputStream(storageFile);
-		return new BufferedInputStream(fs);
+		BufferedInputStream bfs = new BufferedInputStream(fs);
+		return new ObjectInputStream(bfs);
 	}
 
-	private OutputStream openOutputStream() throws FileNotFoundException {
+	private ObjectOutputStream openOutputStream() throws IOException {
 		FileOutputStream fs = new FileOutputStream(storageFile);
-		return new BufferedOutputStream(fs);
-	}
-
-	private boolean hasRepositoryPrefix(String key, String repositoryId) {
-		return key.startsWith(repositoryId) && key.charAt(repositoryId.length()) == '.';
-	}
-
-	private String prefixKey(String key, String repositoryId) {
-		return String.format("%s.%s", repositoryId, key);
-	}
-
-	private String removePrefix(String key, String repositoryId) {
-		return key.substring(repositoryId.length() + 1);
+		BufferedOutputStream bfs = new BufferedOutputStream(fs);
+		return new ObjectOutputStream(bfs);
 	}
 }

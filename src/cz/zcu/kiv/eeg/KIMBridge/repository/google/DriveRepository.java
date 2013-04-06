@@ -7,11 +7,15 @@ import com.google.api.services.drive.model.FileList;
 import cz.zcu.kiv.eeg.KIMBridge.connectors.google.DriveConnector;
 import cz.zcu.kiv.eeg.KIMBridge.repository.IDocument;
 import cz.zcu.kiv.eeg.KIMBridge.repository.IDocumentRepository;
+import cz.zcu.kiv.eeg.KIMBridge.repository.IRepositoryState;
 import cz.zcu.kiv.eeg.KIMBridge.repository.RepositoryException;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -51,18 +55,15 @@ public class DriveRepository implements IDocumentRepository {
 	}
 
 	@Override
-	public Map<String, String> getState() {
-		Map<String, String> state = new HashMap<>();
-		if (lastChangeId != null) {
-			state.put(LAST_CHANGE_ID_KEY, lastChangeId.toString());
-		}
-		return state;
+	public IRepositoryState getState() {
+		return new DriveRepositoryState(lastChangeId);
 	}
 
 	@Override
-	public void setState(Map<String, String> state) {
-		if (state.containsKey(LAST_CHANGE_ID_KEY)) {
-			lastChangeId = new BigInteger(state.get(LAST_CHANGE_ID_KEY));
+	public void setState(IRepositoryState state) {
+		if (state instanceof  DriveRepositoryState) {
+			DriveRepositoryState drvState = (DriveRepositoryState) state;
+			lastChangeId = drvState.getLastChangeId();
 		}
 	}
 

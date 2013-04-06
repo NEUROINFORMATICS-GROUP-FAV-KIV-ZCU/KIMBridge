@@ -2,14 +2,13 @@ package cz.zcu.kiv.eeg.KIMBridge.repository.linkedin;
 
 import com.google.code.linkedinapi.schema.Post;
 import cz.zcu.kiv.eeg.KIMBridge.connectors.linekdin.LinkedInConnector;
-import cz.zcu.kiv.eeg.KIMBridge.repository.IDocument;
-import cz.zcu.kiv.eeg.KIMBridge.repository.IDocumentRepository;
-import cz.zcu.kiv.eeg.KIMBridge.repository.RepositoryException;
-import cz.zcu.kiv.eeg.KIMBridge.repository.StateRestoreException;
+import cz.zcu.kiv.eeg.KIMBridge.repository.*;
 
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * @author Jan Smitka <jan@smitka.org>
@@ -25,7 +24,9 @@ public class LinkedInRepository implements IDocumentRepository {
 	/** Maximum count of posts to be kept in queue for recheck. */
 	private static final int QUEUE_LIMIT = 25;
 
-	private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.US);
+	private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.US);
+
+	private String id;
 
 	private LinkedInConnector linkedIn;
 
@@ -37,7 +38,8 @@ public class LinkedInRepository implements IDocumentRepository {
 
 	private PostQueue queue;
 
-	public LinkedInRepository(LinkedInConnector connector, String groupId) {
+	public LinkedInRepository(String repoId, LinkedInConnector connector, String groupId) {
+		id = repoId;
 		linkedIn = connector;
 		group = groupId;
 		queue = new PostQueue(QUEUE_LIMIT);
@@ -45,26 +47,21 @@ public class LinkedInRepository implements IDocumentRepository {
 
 	@Override
 	public String getId() {
-		return "LinkedIn";
+		return id;
 	}
 
 	@Override
-	public Map<String, String> getState() {
-		Map<String, String> state = new HashMap<>();
-		if (lastCheck != null) {
-			state.put(LAST_CHECK_KEY, dateFormat.format(lastCheck));
-		}
-		return state;
+	public IRepositoryState getState() {
+		return new LinkedInRepositoryState(lastCheck, lastRecheck, queue.getInternalCollection());
 	}
 
 	@Override
-	public void setState(Map<String, String> state) throws StateRestoreException {
-		try {
-			if (state.containsKey(LAST_CHECK_KEY)) {
-				lastCheck = dateFormat.parse(state.get(LAST_CHECK_KEY));
-			}
-		} catch (ParseException e) {
-			throw new StateRestoreException("Error while parsing last checked date.", e);
+	public void setState(IRepositoryState state) throws StateRestoreException {
+		if (state instanceof LinkedInRepositoryState) {
+			LinkedInRepositoryState liState = (LinkedInRepositoryState) state;
+			lastCheck = liState.getLastCheck();
+			lastRecheck = liState.getLastRecheck();
+			queue.setInternalCollection(liState.getPosts());
 		}
 	}
 

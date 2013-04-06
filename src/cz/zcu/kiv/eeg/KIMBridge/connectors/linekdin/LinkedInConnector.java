@@ -6,7 +6,8 @@ import com.google.code.linkedinapi.client.enumeration.PostField;
 import com.google.code.linkedinapi.client.oauth.LinkedInApiConsumer;
 import com.google.code.linkedinapi.schema.Post;
 import com.google.code.linkedinapi.schema.Posts;
-import cz.zcu.kiv.eeg.KIMBridge.Configurator;
+import cz.zcu.kiv.eeg.KIMBridge.ConfigurationException;
+import cz.zcu.kiv.eeg.KIMBridge.config.FactoryConfiguration;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -17,7 +18,6 @@ import java.util.Set;
  * @author Jan Smitka <jan@smitka.org>
  */
 public class LinkedInConnector {
-	private static final String CONFIG_PREFIX = "linkedin";
 	private static final String KEY_CONSUMER_KEY = "consumerKey";
 	private static final String KEY_CONSUMER_SECRET = "consumerSecret";
 	private static final String KEY_TOKEN = "token";
@@ -27,16 +27,16 @@ public class LinkedInConnector {
 
 	private LinkedInApiClient client;
 
-	public LinkedInConnector(Configurator configurator) {
+	public LinkedInConnector(FactoryConfiguration configuration) throws ConfigurationException {
 		LinkedInApiConsumer consumer = new LinkedInApiConsumer(
-				configurator.getPrefixed(CONFIG_PREFIX, KEY_CONSUMER_KEY),
-				configurator.getPrefixed(CONFIG_PREFIX, KEY_CONSUMER_SECRET)
+				configuration.getProperty(KEY_CONSUMER_KEY),
+				configuration.getProperty(KEY_CONSUMER_SECRET)
 		);
 
 		LinkedInApiClientFactory clientFactory = LinkedInApiClientFactory.newInstance(consumer);
 		client = clientFactory.createLinkedInApiClient(
-				configurator.getPrefixed(CONFIG_PREFIX, KEY_TOKEN),
-				configurator.getPrefixed(CONFIG_PREFIX, KEY_TOKEN_SECRET)
+				configuration.getProperty(KEY_TOKEN),
+				configuration.getProperty(KEY_TOKEN_SECRET)
 		);
 	}
 

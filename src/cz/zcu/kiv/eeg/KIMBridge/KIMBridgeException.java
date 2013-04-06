@@ -20,7 +20,9 @@ public class KIMBridgeException extends Exception {
 	}
 
 
-
+	public static KIMBridgeException loadingConfiguration(Throwable cause) {
+		return new KIMBridgeException("Error while loading configuration.", cause);
+	}
 
 	public static KIMBridgeException settingMetadata(Throwable cause) {
 		return new KIMBridgeException("Error while setting document metadata.", cause);

@@ -2,10 +2,12 @@ package cz.zcu.kiv.eeg.KIMBridge.repository.linkedin;
 
 import com.google.code.linkedinapi.schema.Post;
 
+import java.io.Serializable;
+
 /**
  * @author Jan Smitka <jan@smitka.org>
  */
-public class PostInfo {
+public class PostInfo implements Serializable {
 
 	private String id;
 

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<kimBridge>
+    <configuration>
+        <indexPeriod>300000</indexPeriod>
+        <syncFile>./state.bin</syncFile>
+    </configuration>
+    <factories>
+        <googleDrive class="cz.zcu.kiv.eeg.KIMBridge.repository.google.DriveRepositoryFactory">
+            <appName>KIMBridge</appName>
+        </googleDrive>
+        <linkedIn class="cz.zcu.kiv.eeg.KIMBridge.repository.linkedin.LinkedInRepositoryFactory">
+        </linkedIn>
+    </factories>
+    <repositories>
+        <drive type="googleDrive">
+            <folder></folder>
+        </drive>
+        <testGroup type="linkedIn">
+            <gid>959647</gid>
+        </testGroup>
+    </repositories>
+</kimBridge>

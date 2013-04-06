@@ -29,6 +29,15 @@ public class PostQueue {
 	}
 
 
+	public ArrayDeque<PostInfo> getInternalCollection() {
+		return posts;
+	}
+
+	public void setInternalCollection(ArrayDeque<PostInfo> postsColl) {
+		posts = postsColl;
+	}
+
+
 	public PostInfo addNewPost(Post post) {
 		PostInfo postInfo = new PostInfo(post);
 		posts.addLast(postInfo);

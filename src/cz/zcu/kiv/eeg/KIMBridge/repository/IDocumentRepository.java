@@ -1,7 +1,6 @@
 package cz.zcu.kiv.eeg.KIMBridge.repository;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Interface for generic repository of documents.
@@ -17,7 +16,7 @@ public interface IDocumentRepository {
 
 	public void documentIndexed(IDocument document, long kimId);
 
-	public Map<String, String> getState();
+	public IRepositoryState getState();
 
-	public void setState(Map<String, String> state) throws StateRestoreException;
+	public void setState(IRepositoryState state) throws StateRestoreException;
 }
