@@ -11,6 +11,7 @@ import com.ontotext.kim.client.query.DocumentQueryResult;
 import com.ontotext.kim.client.query.DocumentQueryResultRow;
 import com.ontotext.kim.client.query.KIMQueryException;
 import com.ontotext.kim.client.semanticannotation.SemanticAnnotationAPI;
+import cz.zcu.kiv.eeg.KIMBridge.logging.ILogger;
 
 import java.rmi.RemoteException;
 import java.util.LinkedList;
@@ -21,8 +22,12 @@ import java.util.Map;
  * Wrapper for KIM API.
  */
 public class KIMConnector {
+	public static final String LOG_COMPONENT = "KIMConnector";
+
 	private static final String DEFAULT_HOST = "localhost";
 	private static final int DEFAULT_PORT = 1099;
+
+	private ILogger logger;
 
 	private String kimHost;
 
@@ -36,22 +41,23 @@ public class KIMConnector {
 
 	private SemanticAnnotationAPI semanticAnnotation;
 
-	public KIMConnector() throws RemoteException {
-		this(DEFAULT_HOST);
+	public KIMConnector(ILogger logger) throws RemoteException {
+		this(logger, DEFAULT_HOST);
 	}
 
-	public KIMConnector(String host) throws RemoteException {
-		this(host, DEFAULT_PORT);
+	public KIMConnector(ILogger logger, String host) throws RemoteException {
+		this(logger, host, DEFAULT_PORT);
 	}
 
-	public KIMConnector(String host, int port) {
+	public KIMConnector(ILogger logger, String host, int port) {
 		kimHost = host;
 		kimPort = port;
+		this.logger = logger;
 	}
 
 	public void connect() throws RemoteException {
+		logger.logMessage("Connecting to the KIM Platform.");
 		kimService = GetService.from(kimHost, kimPort);
-		kimService.shutdown();
 		corpora = kimService.getCorporaAPI();
 		docRepository = kimService.getDocumentRepositoryAPI();
 		semanticAnnotation = kimService.getSemanticAnnotationAPI();

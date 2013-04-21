@@ -20,7 +20,7 @@ public class KIMIndexTask extends TimerTask {
 		try {
 			kimBridge.annotateNewDocuments();
 		} catch (KIMBridgeException e) {
-			kimDaemon.handleException(e);
+			// error was logged by KIMBridge
 		}
 	}
 }

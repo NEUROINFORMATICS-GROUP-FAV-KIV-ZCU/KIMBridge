@@ -1,5 +1,8 @@
 package cz.zcu.kiv.eeg.KIMBridge;
 
+import cz.zcu.kiv.eeg.KIMBridge.logging.ConsoleLoggerFactory;
+import cz.zcu.kiv.eeg.KIMBridge.logging.ILogger;
+import cz.zcu.kiv.eeg.KIMBridge.logging.ILoggerFactory;
 import cz.zcu.kiv.eeg.KIMBridge.repository.StateRestoreException;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
@@ -22,6 +25,8 @@ public class KIMBridgeDaemon implements Daemon {
 	private static final String CONFIG_FILE = "./config.xml";
 
 	private Timer scheduler;
+
+	private ILoggerFactory loggerFactory;
 
 	private KIMIndexTask task;
 
@@ -58,6 +63,7 @@ public class KIMBridgeDaemon implements Daemon {
 	@Override
 	public void init(DaemonContext daemonContext) throws DaemonInitException, Exception {
 		scheduler = new Timer();
+		loggerFactory = new ConsoleLoggerFactory();
 		createConfigurator();
 		createSyncState();
 		createKIMBridge();
@@ -68,30 +74,31 @@ public class KIMBridgeDaemon implements Daemon {
 
 	private void createConfigurator() throws KIMBridgeException {
 		try {
-			config = new Configurator();
+			ILogger configLogger = loggerFactory.createLogger(Configurator.LOG_COMPONENT);
+			config = new Configurator(configLogger);
 			config.loadDefaults();
 
 			File configFile = new File(CONFIG_FILE);
 			if (configFile.exists()) {
 				config.loadFile(configFile);
 			}
-		} catch (ConfigurationException e) {
-			throw KIMBridgeException.loadingConfiguration(e);
-		} catch (IOException e) {
+		} catch (ConfigurationException|IOException e) {
 			throw KIMBridgeException.loadingConfiguration(e);
 		}
 	}
 
 	private void createSyncState() throws IOException, ConfigurationException, ClassNotFoundException {
-		syncState = new SyncStatePersister(new File(config.get(KEY_SYNC_FILE)));
+		ILogger syncStateLogger = loggerFactory.createLogger(SyncStatePersister.LOG_COMPONENT);
+		syncState = new SyncStatePersister(syncStateLogger, new File(config.get(KEY_SYNC_FILE)));
 		syncState.load();
 	}
 
 
 	private void createKIMBridge() throws KIMBridgeException {
 		try {
-			connector = new KIMConnector();
-			kimBridge = new KIMBridge(connector, syncState);
+			ILogger connectorLogger = loggerFactory.createLogger(KIMConnector.LOG_COMPONENT);
+			connector = new KIMConnector(connectorLogger);
+			kimBridge = new KIMBridge(loggerFactory, connector, syncState);
 		} catch (RemoteException e) {
 			throw KIMBridgeException.connectingToKim(e);
 		}
@@ -105,12 +112,14 @@ public class KIMBridgeDaemon implements Daemon {
 
 	@Override
 	public void start() throws Exception {
+		connector.connect();
 		scheduler.schedule(task, 0, Long.parseLong(config.get(KEY_INDEX_PERIOD)));
 	}
 
 	@Override
 	public void stop() throws Exception {
 		scheduler.cancel();
+		kimBridge.saveRepositoryStates();
 		syncState.save();
 	}
 

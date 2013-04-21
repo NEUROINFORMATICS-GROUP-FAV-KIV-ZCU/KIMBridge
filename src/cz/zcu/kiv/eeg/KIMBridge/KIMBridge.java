@@ -3,6 +3,8 @@ package cz.zcu.kiv.eeg.KIMBridge;
 import com.ontotext.kim.client.corpora.KIMCorporaException;
 import com.ontotext.kim.client.documentrepository.DocumentRepositoryException;
 import com.ontotext.kim.client.query.KIMQueryException;
+import cz.zcu.kiv.eeg.KIMBridge.logging.ILogger;
+import cz.zcu.kiv.eeg.KIMBridge.logging.ILoggerFactory;
 import cz.zcu.kiv.eeg.KIMBridge.repository.*;
 
 import java.io.File;
@@ -19,6 +21,7 @@ import java.util.List;
  */
 public class KIMBridge {
 	private static final char EXT_SEPARATOR = '.';
+	private static final String LOG_COMPONENT = "KIMBridge";
 
 	private SyncStatePersister state;
 
@@ -26,11 +29,17 @@ public class KIMBridge {
 
 	private List<IDocumentRepository> repositories;
 
+	private ILoggerFactory loggerFactory;
 
-	public KIMBridge(KIMConnector connector, SyncStatePersister syncState) {
+	private ILogger logger;
+
+
+	public KIMBridge(ILoggerFactory loggerFactory, KIMConnector connector, SyncStatePersister syncState) {
 		kim = connector;
 		state = syncState;
 		repositories = new LinkedList<IDocumentRepository>();
+		this.loggerFactory = loggerFactory;
+		logger = loggerFactory.createLogger(LOG_COMPONENT);
 	}
 
 
@@ -181,29 +190,52 @@ public class KIMBridge {
 	public void registerRepository(IDocumentRepository repository) throws StateRestoreException {
 		repositories.add(repository);
 
-		repository.setState(state.restoreState(repository.getId()));
+		String repoId = repository.getId();
+		repository.setLogger(loggerFactory.createLogger(formatRepositoryLogComponent(repoId)));
+		logger.logMessage("Restoring %s repository state", repoId);
+		repository.setState(state.restoreState(repoId));
+	}
+
+	private String formatRepositoryLogComponent(String repositoryId) {
+		return String.format("Repository %s", repositoryId);
 	}
 
 
 	public void saveRepositoryStates() {
+		logger.logMessage("Storing repository states.");
 		for (IDocumentRepository repository : repositories) {
 			state.storeState(repository.getId(), repository.getState());
 		}
 	}
 
 
+	/**
+	 * Checks repositories for new documents and annotates them.
+	 *
+	 * All synchronization errors are logged and then thrown.
+	 * @throws KIMBridgeException when an synchronization error occurs.
+	 */
 	public void annotateNewDocuments() throws KIMBridgeException {
+		logger.logMessage("Annotation of new documents has started.");
 		for (IDocumentRepository repository : repositories) {
+			logger.logMessage("Annotating new documents in %s repository has started.", repository.getId());
 			try {
 				List<IDocument> newDocuments = repository.getNewDocuments();
 				annotateDocumentList(newDocuments, repository);
+				logger.logMessage("Annotating new documents in %s repository has finished.", repository.getId());
 				kim.synchronizeIndex(true);
+				logger.logMessage("KIM index synchronized.", repository.getId());
 			} catch (RepositoryException e) {
-				throw KIMBridgeException.fetchingDocuments(e);
+				KIMBridgeException ke = KIMBridgeException.fetchingDocuments(e);
+				logger.logException(ke);
+				throw ke;
 			} catch (DocumentRepositoryException e) {
-				throw KIMBridgeException.synchronizingIndex(e);
+				KIMBridgeException ke = KIMBridgeException.synchronizingIndex(e);
+				logger.logException(ke);
+				throw ke;
 			}
 		}
+		logger.logMessage("Annotation of new documents has finished.");
 	}
 
 
@@ -212,7 +244,7 @@ public class KIMBridge {
 			try {
 				annotateDocument(document, repository);
 			} catch (KIMBridgeException e) {
-				System.err.println(e.toString());
+				logger.logException(e);
 			}
 		}
 	}
@@ -220,6 +252,7 @@ public class KIMBridge {
 
 	public void annotateDocument(IDocument document, IDocumentRepository repository) throws KIMBridgeException {
 		KIMBridgeDocument kimDoc;
+		logger.logMessage("Annotating and indexing document %s", document.getTitle());
 		if (document instanceof ITextDocument) {
 			kimDoc = annotateTextDocument((ITextDocument) document);
 		} else if (document instanceof IBinaryDocument) {
@@ -228,6 +261,7 @@ public class KIMBridge {
 			throw new KIMBridgeException("IDocument is generic interface and should not be implemented!");
 		}
 		repository.documentIndexed(document, kimDoc.getId());
+		logger.logMessage("Document indexed");
 	}
 
 	private KIMBridgeDocument annotateTextDocument(ITextDocument document) throws KIMBridgeException {

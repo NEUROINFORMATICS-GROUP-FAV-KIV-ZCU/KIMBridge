@@ -1,5 +1,6 @@
 package cz.zcu.kiv.eeg.KIMBridge;
 
+import cz.zcu.kiv.eeg.KIMBridge.logging.ILogger;
 import cz.zcu.kiv.eeg.KIMBridge.repository.IRepositoryState;
 
 import java.io.*;
@@ -10,19 +11,23 @@ import java.util.TreeMap;
  * @author Jan Smitka <jan@smitka.org>
  */
 public class SyncStatePersister {
-	private static final String SYNC_COMMENT = "Saved repository synchronization state.";
+	public static final String LOG_COMPONENT = "SyncState";
 
 	private File storageFile;
 
 	private Map<String, IRepositoryState> states;
 
-	public SyncStatePersister(File syncFile) {
+	private ILogger logger;
+
+	public SyncStatePersister(ILogger logger, File syncFile) {
 		states = new TreeMap<>();
 		storageFile = syncFile;
+		this.logger = logger;
 	}
 
 	public void load() throws IOException, ClassNotFoundException {
 		if (storageFile.exists()) {
+			logger.logMessage("Loading %s", storageFile.getPath());
 			ObjectInputStream is = openInputStream();
 			states = (Map<String, IRepositoryState>) is.readObject();
 			is.close();
@@ -39,6 +44,7 @@ public class SyncStatePersister {
 	}
 
 	public void save() throws IOException {
+		logger.logMessage("Writing %s", storageFile.getPath());
 		ObjectOutputStream os = openOutputStream();
 		os.writeObject(states);
 		os.close();

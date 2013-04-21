@@ -4,6 +4,7 @@ import com.google.api.services.drive.model.Change;
 import com.google.api.services.drive.model.ChangeList;
 import com.google.api.services.drive.model.File;
 import cz.zcu.kiv.eeg.KIMBridge.connectors.google.DriveConnector;
+import cz.zcu.kiv.eeg.KIMBridge.logging.ILogger;
 import cz.zcu.kiv.eeg.KIMBridge.repository.IDocument;
 import cz.zcu.kiv.eeg.KIMBridge.repository.IDocumentRepository;
 import cz.zcu.kiv.eeg.KIMBridge.repository.IRepositoryState;
@@ -26,9 +27,16 @@ public class DriveRepository implements IDocumentRepository {
 
 	private Set<String> allowedMimeTypes;
 
+	private ILogger logger;
+
 	public DriveRepository(DriveConnector driveConnector) {
 		drive = driveConnector;
 		allowedMimeTypes = createDefaultAllowedMimeTypes();
+	}
+
+	@Override
+	public void setLogger(ILogger logger) {
+		this.logger = logger;
 	}
 
 	@Override
@@ -65,6 +73,11 @@ public class DriveRepository implements IDocumentRepository {
 	public List<IDocument> getNewDocuments() throws RepositoryException {
 		try {
 			List<IDocument> documents = new LinkedList<>();
+			if (lastChangeId == null) {
+				logger.logMessage("Downloading list of all changes.");
+			} else {
+				logger.logMessage("Downloading list of all changes since change #%d.", lastChangeId.longValue());
+			}
 			ChangeList changes = drive.listChanges(lastChangeId);
 			for (Change change : changes.getItems()) {
 				if (!change.getDeleted()) {
@@ -77,6 +90,7 @@ public class DriveRepository implements IDocumentRepository {
 			if (changes.getLargestChangeId() != null) {
 				lastChangeId = changes.getLargestChangeId();
 			}
+			logger.logMessage("List of changes downloaded: %d new documents.", documents.size());
 			return documents;
 		} catch (IOException e) {
 			throw new RepositoryException(e);
@@ -86,7 +100,9 @@ public class DriveRepository implements IDocumentRepository {
 
 	private DriveDocument createDocument(File file) {
 		if (!fileIsTrashed(file) && mimeTypeIsAllowed(file.getMimeType()) && fileIsDownloadable(file)) {
-			return new DriveDocument(drive, file);
+			DriveDocument doc = new DriveDocument(drive, file);
+			doc.setLogger(logger);
+			return doc;
 		} else {
 			return null;
 		}

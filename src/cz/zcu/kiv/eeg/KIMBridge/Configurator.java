@@ -2,6 +2,7 @@ package cz.zcu.kiv.eeg.KIMBridge;
 
 import cz.zcu.kiv.eeg.KIMBridge.config.FactoryConfiguration;
 import cz.zcu.kiv.eeg.KIMBridge.config.RepositoryConfiguration;
+import cz.zcu.kiv.eeg.KIMBridge.logging.ILogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -20,6 +21,8 @@ import java.util.TreeMap;
  * Configurator loads the repository configuration from specified stream.
  */
 public class Configurator {
+	public static final String LOG_COMPONENT = "Configurator";
+
 	private static final String EL_CONFIGURATION = "configuration";
 
 	private static final String EL_FACTORIES = "factories";
@@ -32,6 +35,8 @@ public class Configurator {
 
 	private static final String DEFAULT_CONFIG = "config/default.xml";
 
+	private ILogger logger;
+
 	private Map<String, String> configuration = new TreeMap<>();
 
 	private Map<String, FactoryConfiguration> factories = new TreeMap<>();
@@ -40,7 +45,8 @@ public class Configurator {
 
 	private DocumentBuilder builder;
 
-	public Configurator() throws ConfigurationException {
+	public Configurator(ILogger logger) throws ConfigurationException {
+		this.logger = logger;
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		try {
 			builder = factory.newDocumentBuilder();
@@ -54,6 +60,7 @@ public class Configurator {
 	 * @throws KIMBridgeException if the default configuration could not be loaded.
 	 */
 	public void loadDefaults() throws KIMBridgeException {
+		logger.logMessage("Loading default configuration.");
 		InputStream stream = getClass().getResourceAsStream(DEFAULT_CONFIG);
 		try {
 			load(stream);
@@ -62,7 +69,14 @@ public class Configurator {
 		}
 	}
 
-	public void load(InputStream configStream) throws ConfigurationException {
+	public void loadFile(File configFile) throws IOException, ConfigurationException {
+		logger.logMessage("Loading %s", configFile.getPath());
+		BufferedInputStream buf = new BufferedInputStream(new FileInputStream(configFile));
+		load(buf);
+		buf.close();
+	}
+
+	private void load(InputStream configStream) throws ConfigurationException {
 		Document doc = createDocument(configStream);
 		NodeList list = doc.getDocumentElement().getChildNodes();
 		try {
@@ -188,11 +202,5 @@ public class Configurator {
 
 	public Map<String, RepositoryConfiguration> getRepositories() {
 		return repositories;
-	}
-
-	public void loadFile(File configFile) throws IOException, ConfigurationException {
-		BufferedInputStream buf = new BufferedInputStream(new FileInputStream(configFile));
-		load(buf);
-		buf.close();
 	}
 }
