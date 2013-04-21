@@ -7,11 +7,8 @@ import cz.zcu.kiv.eeg.KIMBridge.logging.ILogger;
 import cz.zcu.kiv.eeg.KIMBridge.logging.ILoggerFactory;
 import cz.zcu.kiv.eeg.KIMBridge.repository.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,6 +40,13 @@ public class KIMBridge {
 	}
 
 
+	/**
+	 *
+	 * @param title Title of created document.
+	 * @param text Textual content of the document.
+	 * @return Created document.
+	 * @throws KIMBridgeException
+	 */
 	public KIMBridgeDocument createDocumentFromString(String title, String text) throws KIMBridgeException {
 		try {
 			KIMBridgeDocument doc = kim.createDocumentFromString(text);
@@ -65,37 +69,10 @@ public class KIMBridge {
 
 
 	/**
-	 *
-	 * @param title Title of created document.
-	 * @param text Textual content of the document.
-	 * @return Annotated an stored document.
-	 * @throws KIMBridgeException if the document could not be annotated or stored.
-	 */
-	public KIMBridgeDocument annotateString(String title, String text) throws KIMBridgeException {
-		KIMBridgeDocument doc = createDocumentFromString(title, text);
-		return annotateAndStoreDocument(doc);
-	}
-
-
-	/**
-	 * Annotates and stores a locally stored file.
-	 * @param file File to allocate.
-	 * @return
-	 * @throws IOException
-	 * @throws KIMBridgeException
-	 */
-	public KIMBridgeDocument annotateLocalFile(File file) throws IOException, KIMBridgeException {
-		Path path = Paths.get(file.getPath());
-		byte[] data = Files.readAllBytes(path);
-		return annotateBytes(data, extractFileExtension(path));
-	}
-
-
-	/**
-	 *
-	 * @param path
-	 * @return
-	 * @throws KIMBridgeException
+	 * Extracts extension from path info.
+	 * @param path Path.
+	 * @return Extension of the file.
+	 * @throws KIMBridgeException when the file has no extension.
 	 */
 	private String extractFileExtension(Path path) throws KIMBridgeException{
 		String fileName = path.getFileName().toString();
@@ -104,12 +81,6 @@ public class KIMBridge {
 			throw new KIMBridgeException("Files without extension cannot be annotated.");
 		}
 		return fileName.substring(extPos + 1);
-	}
-
-
-	public KIMBridgeDocument annotateBytes(byte[] data, String extension) throws KIMBridgeException {
-		KIMBridgeDocument doc = createDocumentFromBytes(data, extension);
-		return annotateAndStoreDocument(doc);
 	}
 
 
@@ -261,25 +232,28 @@ public class KIMBridge {
 			throw new KIMBridgeException("IDocument is generic interface and should not be implemented!");
 		}
 		repository.documentIndexed(document, kimDoc.getId());
-		logger.logMessage("Document indexed");
+		logger.logMessage("Document indexed with ID #%d", kimDoc.getId());
 	}
 
 	private KIMBridgeDocument annotateTextDocument(ITextDocument document) throws KIMBridgeException {
+		KIMBridgeDocument doc = createDocumentFromString(document.getTitle(), document.getContents());
+		doc.setUrl(document.getUrl());
 		if (document.isNew()) {
-			return annotateString(document.getTitle(), document.getContents());
+			return annotateAndStoreDocument(doc);
 		} else {
-			KIMBridgeDocument newDoc = createDocumentFromString(document.getTitle(), document.getContents());
-			return updateDocument(document.getId(), newDoc);
+			return updateDocument(document.getId(), doc);
 		}
 	}
 
 	private KIMBridgeDocument annotateBinaryDocument(IBinaryDocument document) throws KIMBridgeException {
 		try {
+			KIMBridgeDocument doc = createDocumentFromBytes(document.getData(), document.getExtension());
+			doc.setTitle(document.getTitle());
+			doc.setUrl(document.getUrl());
 			if (document.isNew()) {
-				return annotateBytes(document.getData(), document.getExtension());
+				return annotateAndStoreDocument(doc);
 			} else {
-				KIMBridgeDocument newDoc = createDocumentFromBytes(document.getData(), document.getExtension());
-				return updateDocument(document.getId(), newDoc);
+				return updateDocument(document.getId(), doc);
 			}
 		} catch (IOException e) {
 			throw new KIMBridgeException("Error while reading source data.", e);

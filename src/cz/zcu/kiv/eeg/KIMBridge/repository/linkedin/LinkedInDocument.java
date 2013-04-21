@@ -47,12 +47,17 @@ public class LinkedInDocument implements ITextDocument {
 
 	@Override
 	public String getContents() {
-		return String.format("%s%n%n%s", postData.getSummary(), getAllComments());
+		return String.format("%s%n%s%n%n%s", postData.getTitle(), postData.getSummary() == null ? "" : postData.getSummary(), getAllComments());
 	}
 
 	@Override
 	public String getTitle() {
 		return postData.getTitle();
+	}
+
+	@Override
+	public String getUrl() {
+		return postData.getSiteGroupPostUrl();
 	}
 
 	private String getAllComments() {

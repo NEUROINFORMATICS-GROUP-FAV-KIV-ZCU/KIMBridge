@@ -69,6 +69,22 @@ public class KIMBridgeDocument {
 		metadata.put(FEATURE_TITLE, title);
 	}
 
+	/**
+	 * Sets the document URL.
+	 * @return URL where the document can be found.
+	 */
+	public String getUrl() {
+		return (String) metadata.get(FEATURE_URL);
+	}
+
+	/**
+	 * Sets the URL of the document.
+	 * @param url URL where the document can be found.
+	 */
+	public void setUrl(String url) {
+		metadata.put(FEATURE_URL, url);
+	}
+
 
 	/**
 	 * Writes the features back to the document object.

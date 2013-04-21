@@ -56,6 +56,7 @@ public class LinkedInConnector {
 	private Set<PostField> createPostFields() {
 		Set<PostField> fields = new HashSet<>();
 		fields.add(PostField.ID);
+		fields.add(PostField.SITE_GROUP_POST_URL);
 		fields.add(PostField.TITLE);
 		fields.add(PostField.CREATOR);
 		fields.add(PostField.SUMMARY);

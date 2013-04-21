@@ -44,6 +44,11 @@ public class DriveDocument implements IBinaryDocument {
 	}
 
 	@Override
+	public String getUrl() {
+		return file.getAlternateLink();
+	}
+
+	@Override
 	public String getExtension() {
 		return file.getFileExtension();
 	}
