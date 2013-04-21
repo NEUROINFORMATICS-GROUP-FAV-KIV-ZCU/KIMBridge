@@ -10,8 +10,6 @@ import java.util.List;
 public interface IDocumentRepository {
 	public String getId();
 
-	public List<IDocument> getAllDocuments() throws RepositoryException;
-
 	public List<IDocument> getNewDocuments() throws RepositoryException;
 
 	public void documentIndexed(IDocument document, long kimId);

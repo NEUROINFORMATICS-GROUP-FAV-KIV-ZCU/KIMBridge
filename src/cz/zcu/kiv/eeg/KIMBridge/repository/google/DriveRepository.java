@@ -3,7 +3,6 @@ package cz.zcu.kiv.eeg.KIMBridge.repository.google;
 import com.google.api.services.drive.model.Change;
 import com.google.api.services.drive.model.ChangeList;
 import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
 import cz.zcu.kiv.eeg.KIMBridge.connectors.google.DriveConnector;
 import cz.zcu.kiv.eeg.KIMBridge.repository.IDocument;
 import cz.zcu.kiv.eeg.KIMBridge.repository.IDocumentRepository;
@@ -21,19 +20,14 @@ import java.util.Set;
  *
  */
 public class DriveRepository implements IDocumentRepository {
-	private static final String LAST_CHANGE_ID_KEY = "lastChangeId";
-
 	private DriveConnector drive;
-	private String folderId;
 
 	private BigInteger lastChangeId = null;
 
 	private Set<String> allowedMimeTypes;
 
-	public DriveRepository(DriveConnector driveConnector, String folder) {
-		folderId = folder;
+	public DriveRepository(DriveConnector driveConnector) {
 		drive = driveConnector;
-
 		allowedMimeTypes = createDefaultAllowedMimeTypes();
 	}
 
@@ -64,23 +58,6 @@ public class DriveRepository implements IDocumentRepository {
 		if (state instanceof  DriveRepositoryState) {
 			DriveRepositoryState drvState = (DriveRepositoryState) state;
 			lastChangeId = drvState.getLastChangeId();
-		}
-	}
-
-	@Override
-	public List<IDocument> getAllDocuments() throws RepositoryException {
-		try {
-			List<IDocument> documents = new LinkedList<IDocument>();
-			FileList files = drive.listFilesInFolder(folderId);
-			for (File file : files.getItems()) {
-				DriveDocument document = createDocument(file);
-				if (document != null) {
-					documents.add(document);
-				}
-			}
-			return documents;
-		} catch (IOException e) {
-			throw new RepositoryException();
 		}
 	}
 

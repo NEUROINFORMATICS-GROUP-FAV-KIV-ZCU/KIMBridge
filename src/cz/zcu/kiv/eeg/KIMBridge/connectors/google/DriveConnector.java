@@ -11,7 +11,6 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.ChangeList;
 import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
 import cz.zcu.kiv.eeg.KIMBridge.ConfigurationException;
 import cz.zcu.kiv.eeg.KIMBridge.config.FactoryConfiguration;
 
@@ -47,10 +46,6 @@ public class DriveConnector {
 	}
 
 
-	public FileList listFilesInFolder(String folderId) throws IOException {
-		return drive.files().list().setQ(createFolderFilesQuery(folderId)).execute();
-	}
-
 	public ChangeList listChanges(BigInteger startChangeId) throws IOException {
 		Drive.Changes.List list = drive.changes().list();
 		if (startChangeId != null) {
@@ -62,10 +57,6 @@ public class DriveConnector {
 
 	private BigInteger getNextChangeId(BigInteger startChangeId) {
 		return startChangeId.add(BigInteger.valueOf(1));
-	}
-
-	private String createFolderFilesQuery(String folderId) {
-		return String.format("'%s' in parents", folderId);
 	}
 
 	public HttpResponse sendDownloadFileRequest(File file) throws IOException {

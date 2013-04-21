@@ -1,6 +1,7 @@
 package cz.zcu.kiv.eeg.KIMBridge;
 
 /**
+ * KIMBridge configuration exception.
  * @author Jan Smitka <jan@smitka.org>
  */
 public class ConfigurationException extends Exception {

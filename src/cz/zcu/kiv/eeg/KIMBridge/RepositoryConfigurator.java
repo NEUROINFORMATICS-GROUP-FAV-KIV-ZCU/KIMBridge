@@ -6,7 +6,6 @@ import cz.zcu.kiv.eeg.KIMBridge.repository.IDocumentRepository;
 import cz.zcu.kiv.eeg.KIMBridge.repository.IRepositoryFactory;
 import cz.zcu.kiv.eeg.KIMBridge.repository.StateRestoreException;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,10 +37,11 @@ public class RepositoryConfigurator {
 		try {
 			for (Map.Entry<String, FactoryConfiguration> configEntry : configurator.getFactories().entrySet()) {
 				FactoryConfiguration configuration = configEntry.getValue();
-				IRepositoryFactory factory = (IRepositoryFactory) configuration.getFactoryClass().getDeclaredConstructor(FactoryConfiguration.class).newInstance(configuration);
+				IRepositoryFactory factory = (IRepositoryFactory) configuration.getFactoryClass().newInstance();
+				factory.setConfiguration(configuration);
 				factories.put(configEntry.getKey(), factory);
 			}
-		} catch (NoSuchMethodException|IllegalAccessException|InstantiationException|InvocationTargetException e) {
+		} catch (IllegalAccessException|InstantiationException e) {
 			throw new ConfigurationException("Cannot instantiate factory.", e);
 		}
 	}

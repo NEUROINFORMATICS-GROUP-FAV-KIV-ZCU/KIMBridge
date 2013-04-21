@@ -4,27 +4,19 @@ import com.google.code.linkedinapi.schema.Post;
 import cz.zcu.kiv.eeg.KIMBridge.connectors.linekdin.LinkedInConnector;
 import cz.zcu.kiv.eeg.KIMBridge.repository.*;
 
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * @author Jan Smitka <jan@smitka.org>
  */
 public class LinkedInRepository implements IDocumentRepository {
-	private static final String LAST_CHECK_KEY = "lastCheck";
-
-	private static final String LAST_RECHECK_KEY = "lastRecheck";
-
 	/** Recheck interval. Default: 12h */
 	private static final long RECHECK_INTERVAL = 43200000L;
 
 	/** Maximum count of posts to be kept in queue for recheck. */
 	private static final int QUEUE_LIMIT = 25;
-
-	private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.US);
 
 	private String id;
 
@@ -70,16 +62,6 @@ public class LinkedInRepository implements IDocumentRepository {
 	public void documentIndexed(IDocument document, long kimId) {
 		LinkedInDocument doc = (LinkedInDocument) document;
 		doc.getPostInfo().setKimDocumentId(kimId);
-	}
-
-	@Override
-	public List<IDocument> getAllDocuments() throws RepositoryException {
-		List<Post> posts = linkedIn.getGroupPosts(group);
-		List<IDocument> documents = new LinkedList<IDocument>();
-		for (Post post : posts) {
-			documents.add(createDocument(post));
-		}
-		return documents;
 	}
 
 	private LinkedInDocument createDocument(Post post) {

@@ -40,6 +40,10 @@ public class PostQueue {
 
 	public PostInfo addNewPost(Post post) {
 		PostInfo postInfo = new PostInfo(post);
+		return addNewPost(postInfo);
+	}
+
+	public PostInfo addNewPost(PostInfo postInfo) {
 		posts.addLast(postInfo);
 		return postInfo;
 	}

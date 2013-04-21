@@ -31,20 +31,40 @@ public class KIMBridgeDocument {
 		metadata = kimDocument.getFeatures();
 	}
 
+	/**
+	 * Gets the document ID.
+	 * @return ID of the document stored in KIM.
+	 */
 	public long getId() {
 		return document.getDocumentId();
 	}
 
+	/**
+	 * Gets the underlying document.
+	 *
+	 * Before the document is returned, all metadata are updated.
+	 *
+	 * @return Underlying document.
+	 * @throws KIMCorporaException when the metadata could not be written.
+	 */
 	public KIMDocument getDocument() throws KIMCorporaException {
 		writeFeatures();
 		return document;
 	}
 
+	/**
+	 * Gets the document title.
+	 * @return Document title.
+	 */
 	public String getTitle() {
 		return (String) metadata.get(FEATURE_TITLE);
 	}
 
 
+	/**
+	 * Sets the document title.
+	 * @param title New document title.
+	 */
 	public void setTitle(String title) {
 		metadata.put(FEATURE_TITLE, title);
 	}
@@ -61,6 +81,11 @@ public class KIMBridgeDocument {
 	}
 
 
+	/**
+	 * Copy content and title from another document.
+	 * @param otherDoc Document from which the content will by copied.
+	 * @throws KIMCorporaException when the metadata could not be written.
+	 */
 	public void copyContentFrom(KIMBridgeDocument otherDoc) throws KIMCorporaException {
 		KIMDocument rawDoc = otherDoc.getDocument();
 		setTitle(otherDoc.getTitle());

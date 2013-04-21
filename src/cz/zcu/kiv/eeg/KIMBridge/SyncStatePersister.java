@@ -9,33 +9,34 @@ import java.util.TreeMap;
 /**
  * @author Jan Smitka <jan@smitka.org>
  */
-public class SyncState {
+public class SyncStatePersister {
 	private static final String SYNC_COMMENT = "Saved repository synchronization state.";
 
 	private File storageFile;
 
 	private Map<String, IRepositoryState> states;
 
-	public SyncState(File syncFile) {
+	public SyncStatePersister(File syncFile) {
 		states = new TreeMap<>();
 		storageFile = syncFile;
 	}
 
 	public void load() throws IOException, ClassNotFoundException {
-		ObjectInputStream is = openInputStream();
-		states = (Map<String, IRepositoryState>) is.readObject();
-		is.close();
+		if (storageFile.exists()) {
+			ObjectInputStream is = openInputStream();
+			states = (Map<String, IRepositoryState>) is.readObject();
+			is.close();
+		}
 	}
-
-	public void storeState(String repositoryId, IRepositoryState repoState) {
-		states.put(repositoryId, repoState);
-	}
-
 
 	public IRepositoryState restoreState(String repositoryId) {
 		return states.get(repositoryId);
 	}
 
+
+	public void storeState(String repositoryId, IRepositoryState repoState) {
+		states.put(repositoryId, repoState);
+	}
 
 	public void save() throws IOException {
 		ObjectOutputStream os = openOutputStream();

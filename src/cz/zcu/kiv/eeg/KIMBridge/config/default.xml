@@ -12,11 +12,5 @@
         </linkedIn>
     </factories>
     <repositories>
-        <drive type="googleDrive">
-            <folder></folder>
-        </drive>
-        <testGroup type="linkedIn">
-            <gid>959647</gid>
-        </testGroup>
     </repositories>
 </kimBridge>

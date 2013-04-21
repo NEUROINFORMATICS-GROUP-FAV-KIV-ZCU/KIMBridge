@@ -1,14 +1,13 @@
 package cz.zcu.kiv.eeg.KIMBridge;
 
 import cz.zcu.kiv.eeg.KIMBridge.repository.StateRestoreException;
-import cz.zcu.kiv.eeg.KIMBridge.repository.google.DriveRepositoryFactory;
-import cz.zcu.kiv.eeg.KIMBridge.repository.linkedin.LinkedInRepositoryFactory;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonInitException;
 
 import java.io.File;
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.Timer;
 
 /**
@@ -28,13 +27,11 @@ public class KIMBridgeDaemon implements Daemon {
 
 	private Configurator config;
 
-	private SyncState syncState;
+	private SyncStatePersister syncState;
+
+	private KIMConnector connector;
 
 	private KIMBridge kimBridge;
-
-	private DriveRepositoryFactory driveRepositoryFactory;
-
-	private LinkedInRepositoryFactory linkedInRepositoryFactory;
 
 
 	public static void main(String [] args) {
@@ -61,12 +58,12 @@ public class KIMBridgeDaemon implements Daemon {
 	@Override
 	public void init(DaemonContext daemonContext) throws DaemonInitException, Exception {
 		scheduler = new Timer();
-		task = new KIMIndexTask(this, kimBridge);
-
 		createConfigurator();
 		createSyncState();
 		createKIMBridge();
 		createRepositories();
+
+		task = new KIMIndexTask(this, kimBridge);
 	}
 
 	private void createConfigurator() throws KIMBridgeException {
@@ -86,13 +83,18 @@ public class KIMBridgeDaemon implements Daemon {
 	}
 
 	private void createSyncState() throws IOException, ConfigurationException, ClassNotFoundException {
-		syncState = new SyncState(new File(config.get(KEY_SYNC_FILE)));
+		syncState = new SyncStatePersister(new File(config.get(KEY_SYNC_FILE)));
 		syncState.load();
 	}
 
 
-	private void createKIMBridge() {
-		kimBridge = new KIMBridge(config, syncState);
+	private void createKIMBridge() throws KIMBridgeException {
+		try {
+			connector = new KIMConnector();
+			kimBridge = new KIMBridge(connector, syncState);
+		} catch (RemoteException e) {
+			throw KIMBridgeException.connectingToKim(e);
+		}
 	}
 
 	private void createRepositories() throws StateRestoreException, ConfigurationException {
@@ -103,14 +105,12 @@ public class KIMBridgeDaemon implements Daemon {
 
 	@Override
 	public void start() throws Exception {
-		kimBridge.connect();
 		scheduler.schedule(task, 0, Long.parseLong(config.get(KEY_INDEX_PERIOD)));
 	}
 
 	@Override
 	public void stop() throws Exception {
 		scheduler.cancel();
-
 		syncState.save();
 	}
 

@@ -24,6 +24,10 @@ public class KIMConnector {
 	private static final String DEFAULT_HOST = "localhost";
 	private static final int DEFAULT_PORT = 1099;
 
+	private String kimHost;
+
+	private int kimPort;
+
 	private KIMService kimService;
 
 	private CorporaAPI corpora;
@@ -40,8 +44,14 @@ public class KIMConnector {
 		this(host, DEFAULT_PORT);
 	}
 
-	public KIMConnector(String host, int port) throws RemoteException {
-		kimService = GetService.from(host, port);
+	public KIMConnector(String host, int port) {
+		kimHost = host;
+		kimPort = port;
+	}
+
+	public void connect() throws RemoteException {
+		kimService = GetService.from(kimHost, kimPort);
+		kimService.shutdown();
 		corpora = kimService.getCorporaAPI();
 		docRepository = kimService.getDocumentRepositoryAPI();
 		semanticAnnotation = kimService.getSemanticAnnotationAPI();

@@ -5,6 +5,8 @@ import com.google.code.linkedinapi.schema.Post;
 import java.io.Serializable;
 
 /**
+ * Class representing synchronization information about LinkedIn post.
+ *
  * @author Jan Smitka <jan@smitka.org>
  */
 public class PostInfo implements Serializable {
@@ -18,8 +20,12 @@ public class PostInfo implements Serializable {
 
 
 	public PostInfo(Post post) {
-		id = post.getId();
-		comments = post.getComments().getTotal();
+		this(post.getId(), post.getComments().getTotal());
+	}
+
+	public PostInfo(String postId, long commentsCount) {
+		id = postId;
+		comments = commentsCount;
 	}
 
 
@@ -36,12 +42,19 @@ public class PostInfo implements Serializable {
 		kimId = docId;
 	}
 
+	public boolean hasNewComments(long postCount) {
+		return (postCount > comments);
+	}
 
 	public boolean hasNewComments(Post newPost) {
-		return (newPost.getComments().getTotal() > comments);
+		return hasNewComments(newPost.getComments().getTotal());
 	}
 
 	public void setCommentCountFromPost(Post newPost) {
-		comments = newPost.getComments().getTotal();
+		setCommentCount(newPost.getComments().getTotal());
+	}
+
+	public void setCommentCount(long newCommentCount) {
+		comments = newCommentCount;
 	}
 }

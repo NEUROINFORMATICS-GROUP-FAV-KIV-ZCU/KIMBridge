@@ -1,5 +1,6 @@
 package cz.zcu.kiv.eeg.KIMBridge.repository.google;
 
+import cz.zcu.kiv.eeg.KIMBridge.ConfigurationException;
 import cz.zcu.kiv.eeg.KIMBridge.config.FactoryConfiguration;
 import cz.zcu.kiv.eeg.KIMBridge.config.RepositoryConfiguration;
 import cz.zcu.kiv.eeg.KIMBridge.connectors.google.DriveConnector;
@@ -9,22 +10,21 @@ import cz.zcu.kiv.eeg.KIMBridge.repository.IRepositoryFactory;
  * @author Jan Smitka <jan@smitka.org>
  */
 public class DriveRepositoryFactory implements IRepositoryFactory {
-	private static final String KEY_FOLDER = "folder";
+	private FactoryConfiguration configuration;
 
-	FactoryConfiguration configuration;
+	private DriveConnector connector;
 
-	public DriveRepositoryFactory(FactoryConfiguration config) {
+	@Override
+	public void setConfiguration(FactoryConfiguration config) throws ConfigurationException {
 		configuration = config;
+		try {
+			connector = new DriveConnector(configuration);
+		} catch (Exception e) {
+			throw new ConfigurationException("Repository could not be created.", e);
+		}
 	}
 
-	public DriveRepository createRepository(String id, RepositoryConfiguration config) {
-		try {
-			DriveConnector connector = new DriveConnector(configuration);
-
-			return new DriveRepository(connector, config.getProperty(KEY_FOLDER));
-		} catch (Exception e) {
-			//TODO: catch exception
-			return null;
-		}
+	public DriveRepository createRepository(String id, RepositoryConfiguration config) throws ConfigurationException {
+		return new DriveRepository(connector);
 	}
 }

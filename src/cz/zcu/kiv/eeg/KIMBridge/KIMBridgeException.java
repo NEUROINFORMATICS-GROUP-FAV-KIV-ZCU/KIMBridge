@@ -32,11 +32,24 @@ public class KIMBridgeException extends Exception {
 		return new KIMBridgeException("Error while annotating the document.", cause);
 	}
 
+	public static KIMBridgeException fetchingDocuments(Throwable cause) {
+		return new KIMBridgeException("Error while fetching documents from remote repositories.", cause);
+	}
+
+	public static KIMBridgeException synchronizingIndex(Throwable cause) {
+		return new KIMBridgeException("Error while synchronizing document index.", cause);
+	}
+
+
 	public static KIMBridgeException fetchingDocument(Throwable cause) {
 		return new KIMBridgeException("Error while fetching document from repository.", cause);
 	}
 
 	public static KIMBridgeException synchronizingDocument(Throwable cause) {
 		return new KIMBridgeException("Error while synchronizing document with document repository.", cause);
+	}
+
+	public static KIMBridgeException connectingToKim(Throwable cause) {
+		return new KIMBridgeException("Error while connecting to KIM Platform.", cause);
 	}
 }

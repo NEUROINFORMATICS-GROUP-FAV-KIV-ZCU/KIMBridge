@@ -15,13 +15,16 @@ public class LinkedInRepositoryFactory implements IRepositoryFactory {
 
 	private FactoryConfiguration configuration;
 
-	public LinkedInRepositoryFactory(FactoryConfiguration config) {
+	private LinkedInConnector connector;
+
+	@Override
+	public void setConfiguration(FactoryConfiguration config) throws ConfigurationException {
 		configuration = config;
+		connector = new LinkedInConnector(configuration);;
 	}
 
 	@Override
 	public IDocumentRepository createRepository(String id, RepositoryConfiguration config) throws ConfigurationException {
-		LinkedInConnector connector = new LinkedInConnector(configuration);
 		return new LinkedInRepository(id, connector, config.getProperty(KEY_GROUP_ID));
 	}
 }

@@ -20,37 +20,17 @@ import java.util.List;
 public class KIMBridge {
 	private static final char EXT_SEPARATOR = '.';
 
-	private Configurator config;
-
-	private SyncState state;
+	private SyncStatePersister state;
 
 	private KIMConnector kim;
 
 	private List<IDocumentRepository> repositories;
 
 
-	public KIMBridge(Configurator configurator, SyncState syncState) {
-		config = configurator;
+	public KIMBridge(KIMConnector connector, SyncStatePersister syncState) {
+		kim = connector;
 		state = syncState;
 		repositories = new LinkedList<IDocumentRepository>();
-	}
-
-
-	public Configurator getConfigurator() {
-		return config;
-	}
-
-
-	/**
-	 * Connects to the KIM Platform.
-	 * @throws KIMBridgeException if the connection could not be established.
-	 */
-	public void connect() throws KIMBridgeException {
-		try {
-			kim = new KIMConnector();
-		} catch (RemoteException e) {
-			throw new KIMBridgeException("Error while connecting.", e);
-		}
 	}
 
 
@@ -212,25 +192,16 @@ public class KIMBridge {
 	}
 
 
-	public void annotateAllDocuments() throws KIMBridgeException {
-		for (IDocumentRepository repository : repositories) {
-			try {
-				List<IDocument> documents = repository.getAllDocuments();
-				annotateDocumentList(documents, repository);
-			} catch (RepositoryException e) {
-				throw new KIMBridgeException("Error while fetching documents.", e);
-			}
-		}
-	}
-
-
 	public void annotateNewDocuments() throws KIMBridgeException {
 		for (IDocumentRepository repository : repositories) {
 			try {
 				List<IDocument> newDocuments = repository.getNewDocuments();
 				annotateDocumentList(newDocuments, repository);
+				kim.synchronizeIndex(true);
 			} catch (RepositoryException e) {
-				throw new KIMBridgeException("Error while fetching new documents.", e);
+				throw KIMBridgeException.fetchingDocuments(e);
+			} catch (DocumentRepositoryException e) {
+				throw KIMBridgeException.synchronizingIndex(e);
 			}
 		}
 	}
@@ -277,7 +248,7 @@ public class KIMBridge {
 				return updateDocument(document.getId(), newDoc);
 			}
 		} catch (IOException e) {
-			throw new KIMBridgeException("", e);
+			throw new KIMBridgeException("Error while reading source data.", e);
 		}
 	}
 }
