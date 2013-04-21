@@ -20,6 +20,7 @@ import java.security.GeneralSecurityException;
 
 /**
  * Google Drive connector.
+ * @author Jan Smitka <jan@smitka.org>
  */
 public class DriveConnector {
 	private static final String KEY_SERVICE_ACCOUNT_ID = "accountId";
@@ -28,7 +29,13 @@ public class DriveConnector {
 
 	private Drive drive;
 
-
+	/**
+	 * Initializes Google Drive connector.
+	 * @param configuration Connector configuration.
+	 * @throws GeneralSecurityException from the underlying Google Drive SDK.
+	 * @throws IOException when the private key file cannot be read.
+	 * @throws ConfigurationException when the configuration does not contain required values.
+	 */
 	public DriveConnector(FactoryConfiguration configuration) throws GeneralSecurityException, IOException, ConfigurationException {
 		HttpTransport httpTransport = new NetHttpTransport();
 		JsonFactory jsonFactory = new JacksonFactory();
@@ -46,6 +53,12 @@ public class DriveConnector {
 	}
 
 
+	/**
+	 * Downloads list of changes.
+	 * @param startChangeId ID of the first change.
+	 * @return List of changes.
+	 * @throws IOException when the list cannot be downloaded.
+	 */
 	public ChangeList listChanges(BigInteger startChangeId) throws IOException {
 		Drive.Changes.List list = drive.changes().list();
 		if (startChangeId != null) {
@@ -55,10 +68,21 @@ public class DriveConnector {
 		return list.execute();
 	}
 
+	/**
+	 * Gets the next change ID.
+	 * @param startChangeId Change ID.
+	 * @return Change ID + 1.
+	 */
 	private BigInteger getNextChangeId(BigInteger startChangeId) {
 		return startChangeId.add(BigInteger.valueOf(1));
 	}
 
+	/**
+	 * Initializes file download request.
+	 * @param file File to be downloaded.
+	 * @return HTTP response.
+	 * @throws IOException when the request cannot be send.
+	 */
 	public HttpResponse sendDownloadFileRequest(File file) throws IOException {
 		GenericUrl downloadUrl = new GenericUrl(file.getDownloadUrl());
 		return drive.getRequestFactory().buildGetRequest(downloadUrl).execute();

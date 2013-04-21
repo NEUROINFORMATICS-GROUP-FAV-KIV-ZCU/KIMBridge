@@ -7,7 +7,7 @@ package cz.zcu.kiv.eeg.KIMBridge.logging;
  */
 public class ConsoleLoggerFactory implements ILoggerFactory {
 	/**
-	 *
+	 * Creates a console logger for specified component.
 	 * @param component Textual component identifier.
 	 * @return Console logger for specific component.
 	 */
