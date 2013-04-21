@@ -1,6 +1,7 @@
 package cz.zcu.kiv.eeg.KIMBridge.repository;
 
 /**
+ * Repository state restore exception.
  * @author Jan Smitka <jan@smitka.org>
  */
 public class StateRestoreException extends Exception {

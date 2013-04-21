@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * LinkedIn discussions repository. Each repository downloads discussions from specified group.
  * @author Jan Smitka <jan@smitka.org>
  */
 public class LinkedInRepository implements IDocumentRepository {
@@ -33,6 +34,12 @@ public class LinkedInRepository implements IDocumentRepository {
 
 	private PostQueue queue;
 
+	/**
+	 * Creates a new repository.
+	 * @param repoId Repository ID.
+	 * @param connector LinkedIn connector.
+	 * @param groupId Group ID.
+	 */
 	public LinkedInRepository(String repoId, LinkedInConnector connector, String groupId) {
 		id = repoId;
 		linkedIn = connector;
@@ -40,21 +47,38 @@ public class LinkedInRepository implements IDocumentRepository {
 		queue = new PostQueue(QUEUE_LIMIT);
 	}
 
+	/**
+	 * Sets the logger.
+	 * @param logger Logger.
+	 */
 	@Override
 	public void setLogger(ILogger logger) {
 		this.logger = logger;
 	}
 
+	/**
+	 * Gets the repository ID.
+	 * @return Repository ID.
+	 */
 	@Override
 	public String getId() {
 		return id;
 	}
 
+	/**
+	 * Gets the repository synchronization state.
+	 * @return Synchronization state.
+	 */
 	@Override
 	public IRepositoryState getState() {
 		return new LinkedInRepositoryState(lastCheck, lastRecheck, queue.getInternalCollection());
 	}
 
+	/**
+	 * Restores the repository synchronization state.
+	 * @param state Synchronization state of the repository.
+	 * @throws StateRestoreException when the repository state cannot be restored.
+	 */
 	@Override
 	public void setState(IRepositoryState state) throws StateRestoreException {
 		if (state instanceof LinkedInRepositoryState) {
@@ -65,23 +89,43 @@ public class LinkedInRepository implements IDocumentRepository {
 		}
 	}
 
-
+	/**
+	 * Called after the document has been indexed. Stores KIM document ID for later updates.
+	 * @param document Document.
+	 * @param kimId KIM document ID.
+	 */
 	@Override
 	public void documentIndexed(IDocument document, long kimId) {
 		LinkedInDocument doc = (LinkedInDocument) document;
 		doc.getPostInfo().setKimDocumentId(kimId);
 	}
 
+	/**
+	 * Creates a new document from given post.
+	 * @param post Post.
+	 * @return LinkedIn document.
+	 */
 	private LinkedInDocument createDocument(Post post) {
 		return new LinkedInDocument(post);
 	}
 
+	/**
+	 * Creates a new document from given post and synchronization information.
+	 * @param post Post.
+	 * @param postInfo Synchronization information.
+	 * @return LinkedIn document.
+	 */
 	private LinkedInDocument createDocument(Post post, PostInfo postInfo) {
 		LinkedInDocument document = createDocument(post);
 		document.setPostInfo(postInfo);
 		return document;
 	}
 
+	/**
+	 * Gets the list of new documents.
+	 * @return List of new documents.
+	 * @throws RepositoryException when the documents cannot be fetched.
+	 */
 	@Override
 	public List<IDocument> getNewDocuments() throws RepositoryException {
 		logger.logMessage("Fetching and updating posts.");
@@ -92,6 +136,10 @@ public class LinkedInRepository implements IDocumentRepository {
 		return documents;
 	}
 
+	/**
+	 * Gets the list of new discussions since last synchronization.
+	 * @return List of new discussions.
+	 */
 	private List<IDocument> getNewPosts() {
 		List<Post> posts;
 		if (lastCheck == null) {
@@ -115,6 +163,10 @@ public class LinkedInRepository implements IDocumentRepository {
 	}
 
 
+	/**
+	 * Checks for new comments in tracked discussions.
+	 * @return List of documents containing discussions with new comments.
+	 */
 	private List<IDocument> getUpdatedPosts() {
 		List<IDocument> documents = new LinkedList<>();
 
@@ -143,6 +195,11 @@ public class LinkedInRepository implements IDocumentRepository {
 	}
 
 
+	/**
+	 * Checks specified post for new comments.
+	 * @param postInfo Synchronization information.
+	 * @return New document when there are new comments available or {@code null}.
+	 */
 	private IDocument checkPost(PostInfo postInfo) {
 		Post post = linkedIn.getPost(postInfo.getId());
 

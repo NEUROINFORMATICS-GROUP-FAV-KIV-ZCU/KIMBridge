@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
+ * Document stored in Google Drive. Does not support document updates.
+ *
+ * Document data is downloaded each time the {@code getData()} method is invoked.
  * @author Jan Smitka <jan@smitka.org>
  */
 public class DriveDocument implements IBinaryDocument {
@@ -19,40 +22,74 @@ public class DriveDocument implements IBinaryDocument {
 
 	private ILogger logger;
 
+	/**
+	 * Creates the document from Google Drive File metadata.
+	 * @param connector Google Drive connector.
+	 * @param fileMetadata File metadata.
+	 */
 	public DriveDocument(DriveConnector connector, File fileMetadata) {
 		drive = connector;
 		file = fileMetadata;
 	}
 
+	/**
+	 * Sets the logger.
+	 * @param logger Logger.
+	 */
 	public void setLogger(ILogger logger) {
 		this.logger = logger;
 	}
 
+	/**
+	 * Gets the random dummy document ID.
+	 * @return See {@code http://xkcd.com/221/}.
+	 */
 	@Override
 	public long getId() {
-		return 0;
+		return 4;
 	}
 
+	/**
+	 * Is this a new document?
+	 * @return Always {@code true}.
+	 */
 	@Override
 	public boolean isNew() {
 		return true;
 	}
 
+	/**
+	 * Gets the document title.
+	 * @return Original filename.
+	 */
 	@Override
 	public String getTitle() {
 		return file.getOriginalFilename();
 	}
 
+	/**
+	 * Gets the document URL.
+	 * @return URL in Google Drive.
+	 */
 	@Override
 	public String getUrl() {
 		return file.getAlternateLink();
 	}
 
+	/**
+	 * Gets the document extension.
+	 * @return Document file extension.
+	 */
 	@Override
 	public String getExtension() {
 		return file.getFileExtension();
 	}
 
+	/**
+	 * Downloads the document data.
+	 * @return Raw file data.
+	 * @throws IOException when the data cannot be downloaded.
+	 */
 	@Override
 	public byte[] getData() throws IOException {
 		logger.logMessage("Downloading %s", file.getOriginalFilename());

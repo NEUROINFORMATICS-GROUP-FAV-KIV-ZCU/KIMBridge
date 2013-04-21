@@ -1,6 +1,7 @@
 package cz.zcu.kiv.eeg.KIMBridge.repository;
 
 /**
+ * Repository sync exception.
  * @author Jan Smitka <jan@smitka.org>
  */
 public class RepositoryException extends Exception {
