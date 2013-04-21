@@ -15,6 +15,7 @@ import java.util.List;
 
 /**
  * Main KIMBridge class.
+ * @author Jan Smitka <jan@smitka.org>
  */
 public class KIMBridge {
 	private static final char EXT_SEPARATOR = '.';
@@ -31,6 +32,12 @@ public class KIMBridge {
 	private ILogger logger;
 
 
+	/**
+	 * Initializes KIMBridge.
+	 * @param loggerFactory Factory for creating per-repository loggers.
+	 * @param connector Connector to KIM.
+	 * @param syncState Synchronization state persister.
+	 */
 	public KIMBridge(ILoggerFactory loggerFactory, KIMConnector connector, SyncStatePersister syncState) {
 		kim = connector;
 		state = syncState;
@@ -41,24 +48,28 @@ public class KIMBridge {
 
 
 	/**
+	 * Creates a new plaintext document from string.
 	 *
-	 * @param title Title of created document.
 	 * @param text Textual content of the document.
 	 * @return Created document.
-	 * @throws KIMBridgeException
+	 * @throws KIMBridgeException when the document could not be created.
 	 */
-	public KIMBridgeDocument createDocumentFromString(String title, String text) throws KIMBridgeException {
+	public KIMBridgeDocument createDocumentFromString(String text) throws KIMBridgeException {
 		try {
 			KIMBridgeDocument doc = kim.createDocumentFromString(text);
-			if (title != null) {
-				doc.setTitle(title);
-			}
 			return doc;
 		} catch (KIMCorporaException e) {
 			throw new KIMBridgeException("Error while creating the document.", e);
 		}
 	}
 
+	/**
+	 * Creates a new document from binary data.
+	 * @param data Binary data.
+	 * @param extension Original file extension.
+	 * @return Created document.
+	 * @throws KIMBridgeException when the document could not be created.
+	 */
 	public KIMBridgeDocument createDocumentFromBytes(byte[] data, String extension) throws KIMBridgeException {
 		try {
 			return kim.createDocumentFromBinaryData(data, extension);
@@ -84,6 +95,12 @@ public class KIMBridge {
 	}
 
 
+	/**
+	 * Annotates and stores document in KIM document repository.
+	 * @param document Document.
+	 * @return Annotated document.
+	 * @throws KIMBridgeException when the document could not be annotated or stored.
+	 */
 	public KIMBridgeDocument annotateAndStoreDocument(KIMBridgeDocument document) throws KIMBridgeException {
 		try {
 			kim.annotateDocument(document);
@@ -164,18 +181,26 @@ public class KIMBridge {
 		String repoId = repository.getId();
 		repository.setLogger(loggerFactory.createLogger(formatRepositoryLogComponent(repoId)));
 		logger.logMessage("Restoring %s repository state", repoId);
-		repository.setState(state.restoreState(repoId));
+		repository.setState(state.getState(repoId));
 	}
 
+	/**
+	 * Formats log component string for given repository.
+	 * @param repositoryId Repository ID.
+	 * @return Formatted log component name.
+	 */
 	private String formatRepositoryLogComponent(String repositoryId) {
 		return String.format("Repository %s", repositoryId);
 	}
 
 
+	/**
+	 * Stores the repository states to the sync state persister. Does not write the data to output file.
+	 */
 	public void saveRepositoryStates() {
 		logger.logMessage("Storing repository states.");
 		for (IDocumentRepository repository : repositories) {
-			state.storeState(repository.getId(), repository.getState());
+			state.putState(repository.getId(), repository.getState());
 		}
 	}
 
@@ -210,7 +235,14 @@ public class KIMBridge {
 	}
 
 
-	public void annotateDocumentList(List<IDocument> documents, IDocumentRepository repository) throws KIMBridgeException{
+	/**
+	 * Annotates and stores all documents from remote repository in specified list.
+	 *
+	 * All annotation errors are logged and not thrown.
+	 * @param documents List of documents from remote repository.
+	 * @param repository Originating repository.
+	 */
+	private void annotateDocumentList(List<IDocument> documents, IDocumentRepository repository) {
 		for (IDocument document : documents) {
 			try {
 				annotateDocument(document, repository);
@@ -221,7 +253,13 @@ public class KIMBridge {
 	}
 
 
-	public void annotateDocument(IDocument document, IDocumentRepository repository) throws KIMBridgeException {
+	/**
+	 * Annotates and stores single document from remote repository.
+	 * @param document Document from remote repository.
+	 * @param repository Originating repository.
+	 * @throws KIMBridgeException
+	 */
+	private void annotateDocument(IDocument document, IDocumentRepository repository) throws KIMBridgeException {
 		KIMBridgeDocument kimDoc;
 		logger.logMessage("Annotating and indexing document %s", document.getTitle());
 		if (document instanceof ITextDocument) {
@@ -235,28 +273,49 @@ public class KIMBridge {
 		logger.logMessage("Document indexed with ID #%d", kimDoc.getId());
 	}
 
+	/**
+	 * Annotates and stores single text document. Allows document updates.
+	 * @param document Text document to be stored or updated.
+	 * @return Annotated document.
+	 * @throws KIMBridgeException when the document cannot be annotated or stored.
+	 */
 	private KIMBridgeDocument annotateTextDocument(ITextDocument document) throws KIMBridgeException {
-		KIMBridgeDocument doc = createDocumentFromString(document.getTitle(), document.getContents());
+		KIMBridgeDocument kimDoc = createDocumentFromString(document.getContents());
+		return annotateKIMDocument(document, kimDoc);
+	}
+
+	/**
+	 * Annotates and stores single binary document. Allows document updates.
+	 * @param document Binary document to be stored or updated.
+	 * @return Annotated document.
+	 * @throws KIMBridgeException when the document cannot be annotated or stored.
+	 */
+	private KIMBridgeDocument annotateBinaryDocument(IBinaryDocument document) throws KIMBridgeException {
+		try {
+			KIMBridgeDocument kimDoc = createDocumentFromBytes(document.getData(), document.getExtension());
+			return annotateKIMDocument(document, kimDoc);
+		} catch (IOException e) {
+			throw new KIMBridgeException("Error while reading source data.", e);
+		}
+	}
+
+	/**
+	 * Annotates and stores already created KIM document with specified document features.
+	 *
+	 * Allows document updates.
+	 * @param document Document from remote repository containing document features and optionally information about
+	 *                 original document.
+	 * @param doc KIM document.
+	 * @return Annotated document.
+	 * @throws KIMBridgeException
+	 */
+	private KIMBridgeDocument annotateKIMDocument(IDocument document, KIMBridgeDocument doc) throws KIMBridgeException {
+		doc.setTitle(document.getTitle());
 		doc.setUrl(document.getUrl());
 		if (document.isNew()) {
 			return annotateAndStoreDocument(doc);
 		} else {
 			return updateDocument(document.getId(), doc);
-		}
-	}
-
-	private KIMBridgeDocument annotateBinaryDocument(IBinaryDocument document) throws KIMBridgeException {
-		try {
-			KIMBridgeDocument doc = createDocumentFromBytes(document.getData(), document.getExtension());
-			doc.setTitle(document.getTitle());
-			doc.setUrl(document.getUrl());
-			if (document.isNew()) {
-				return annotateAndStoreDocument(doc);
-			} else {
-				return updateDocument(document.getId(), doc);
-			}
-		} catch (IOException e) {
-			throw new KIMBridgeException("Error while reading source data.", e);
 		}
 	}
 }

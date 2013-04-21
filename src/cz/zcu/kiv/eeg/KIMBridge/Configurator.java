@@ -45,6 +45,11 @@ public class Configurator {
 
 	private DocumentBuilder builder;
 
+	/**
+	 * Initializes configurator.
+	 * @param logger Logger.
+	 * @throws ConfigurationException when the XML document parser is not configured properly.
+	 */
 	public Configurator(ILogger logger) throws ConfigurationException {
 		this.logger = logger;
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -69,6 +74,12 @@ public class Configurator {
 		}
 	}
 
+	/**
+	 * Loads configuration from specified file.
+	 * @param configFile Configuration file.
+	 * @throws IOException when the file could not be read.
+	 * @throws ConfigurationException when the configuration is malformed.
+	 */
 	public void loadFile(File configFile) throws IOException, ConfigurationException {
 		logger.logMessage("Loading %s", configFile.getPath());
 		BufferedInputStream buf = new BufferedInputStream(new FileInputStream(configFile));
@@ -76,6 +87,11 @@ public class Configurator {
 		buf.close();
 	}
 
+	/**
+	 * Loads configuration from specified stream.
+	 * @param configStream Stream with XML configuration.
+	 * @throws ConfigurationException when the configuration is malformed.
+	 */
 	private void load(InputStream configStream) throws ConfigurationException {
 		Document doc = createDocument(configStream);
 		NodeList list = doc.getDocumentElement().getChildNodes();
@@ -99,6 +115,12 @@ public class Configurator {
 		}
 	}
 
+	/**
+	 * Creates XML document of configuration.
+	 * @param stream Input stream.
+	 * @return Configuration document.
+	 * @throws ConfigurationException when the document could not be created, e.g. XML is malformed.
+	 */
 	private Document createDocument(InputStream stream) throws ConfigurationException {
 
 		try {
@@ -112,11 +134,19 @@ public class Configurator {
 		}
 	}
 
-
+	/**
+	 * Loads configuration properties from specified node.
+	 * @param configNode Node.
+	 */
 	private void loadConfiguration(Node configNode) {
 		loadPropertiesFromNode(configNode, configuration);
 	}
 
+	/**
+	 * Load factories configuration.
+	 * @param factoriesNode Node with factories configuration.
+	 * @throws ClassNotFoundException when class of factory cannot be found.
+	 */
 	private void loadFactories(Node factoriesNode) throws ClassNotFoundException {
 		NodeList items = factoriesNode.getChildNodes();
 		for (int i = 0; i < items.getLength(); i++) {
@@ -135,6 +165,10 @@ public class Configurator {
 		}
 	}
 
+	/**
+	 * Loads repositories configuration.
+	 * @param repositoriesNode Node with repositories configuration.
+	 */
 	private void loadRepositories(Node repositoriesNode) {
 		NodeList items = repositoriesNode.getChildNodes();
 		for (int i = 0; i < items.getLength(); i++) {
@@ -148,14 +182,23 @@ public class Configurator {
 		}
 	}
 
-
+	/**
+	 * Loads properties from specified node.
+	 * @param node Node.
+	 * @return Loaded properties.
+	 */
 	private Map<String, String> loadPropertiesFromNode(Node node) {
 		Map<String, String> props = new TreeMap<>();
 		loadPropertiesFromNode(node, props);
 		return props;
 	}
 
-
+	/**
+	 * Loads properties from specified node and stores them in specified collection.
+	 * @param node Node.
+	 * @param coll Collection of properties.
+	 * @return Collection of properties.
+	 */
 	private Map<String, String> loadPropertiesFromNode(Node node, Map<String, String> coll) {
 		NodeList items = node.getChildNodes();
 		for (int i = 0; i < items.getLength(); i++) {
@@ -168,7 +211,12 @@ public class Configurator {
 	}
 
 
-
+	/**
+	 * Gets the configuration key.
+	 * @param key Key.
+	 * @return Value.
+	 * @throws ConfigurationException when the configuration key could not be found.
+	 */
 	public String get(String key) throws ConfigurationException {
 		if (configuration.containsKey(key)) {
 			return configuration.get(key);
@@ -177,6 +225,12 @@ public class Configurator {
 		}
 	}
 
+	/**
+	 * Gets the configuration key or default value when the key cannot be found.
+	 * @param key Key.
+	 * @param defaultValue Default value.
+	 * @return Value.
+	 */
 	public String get(String key, String defaultValue) {
 		if (configuration.containsKey(key)) {
 			return configuration.get(key);
@@ -186,11 +240,20 @@ public class Configurator {
 	}
 
 
+	/**
+	 * Gets map of configured factories.
+	 * @return Map with factory configurations.
+	 */
 	public Map<String, FactoryConfiguration> getFactories() {
 		return factories;
 	}
 
-
+	/**
+	 * Gets configuration of factory with specified name.
+	 * @param name Name.
+	 * @return Configuration of the factory.
+	 * @throws ConfigurationException when the factory configuration could not be found.
+	 */
 	public FactoryConfiguration getFactory(String name) throws ConfigurationException {
 		if (factories.containsKey(name)) {
 			return factories.get(name);
@@ -199,7 +262,10 @@ public class Configurator {
 		}
 	}
 
-
+	/**
+	 * Gets map of configured repositories.
+	 * @return Map with repository configurations.
+	 */
 	public Map<String, RepositoryConfiguration> getRepositories() {
 		return repositories;
 	}

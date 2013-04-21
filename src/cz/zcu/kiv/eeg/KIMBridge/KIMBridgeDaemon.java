@@ -38,7 +38,10 @@ public class KIMBridgeDaemon implements Daemon {
 
 	private KIMBridge kimBridge;
 
-
+	/**
+	 * KIMBridge CLI entry point.
+	 * @param args Command line arguments.
+	 */
 	public static void main(String [] args) {
 		KIMBridgeDaemon daemon = new KIMBridgeDaemon();
 		registerShutdownHandler(daemon);
@@ -51,15 +54,28 @@ public class KIMBridgeDaemon implements Daemon {
 
 	}
 
+	/**
+	 * Registers shutdown handler for the CLI runtime.
+	 * @param daemon Daemon which should be shut down.
+	 */
 	public static void registerShutdownHandler(KIMBridgeDaemon daemon) {
 		Runtime.getRuntime().addShutdownHook(new ShutdownHandler(daemon));
 	}
 
+	/**
+	 * Handles the exception.
+	 * @param e Exception.
+	 */
 	public void handleException(Exception e) {
 		e.printStackTrace();
 	}
 
-
+	/**
+	 * Initializes the KIM service.
+	 * @param daemonContext Context of the daemon. Required by {@code Daemon} interface.
+	 * @throws DaemonInitException never thrown.
+	 * @throws Exception when any exception occurs. :-) Required by {@code Daemon} interface.
+	 */
 	@Override
 	public void init(DaemonContext daemonContext) throws DaemonInitException, Exception {
 		scheduler = new Timer();
@@ -69,9 +85,13 @@ public class KIMBridgeDaemon implements Daemon {
 		createKIMBridge();
 		createRepositories();
 
-		task = new KIMIndexTask(this, kimBridge);
+		task = new KIMIndexTask(kimBridge);
 	}
 
+	/**
+	 * Creates configurator, loads default configuration and a instance-specific configuration file (config.xml by default).
+	 * @throws KIMBridgeException when the configuration could not be loaded.
+	 */
 	private void createConfigurator() throws KIMBridgeException {
 		try {
 			ILogger configLogger = loggerFactory.createLogger(Configurator.LOG_COMPONENT);
@@ -87,6 +107,12 @@ public class KIMBridgeDaemon implements Daemon {
 		}
 	}
 
+	/**
+	 * Creates synchronization state persister and loads repository states.
+	 * @throws IOException when the synchronization file could not be read.
+	 * @throws ConfigurationException when the configuration is malformed.
+	 * @throws ClassNotFoundException when one of the classes in the binary store could not be loaded.
+	 */
 	private void createSyncState() throws IOException, ConfigurationException, ClassNotFoundException {
 		ILogger syncStateLogger = loggerFactory.createLogger(SyncStatePersister.LOG_COMPONENT);
 		syncState = new SyncStatePersister(syncStateLogger, new File(config.get(KEY_SYNC_FILE)));
@@ -94,28 +120,45 @@ public class KIMBridgeDaemon implements Daemon {
 	}
 
 
+	/**
+	 * Creates a connection to KIM and a KIMBridge instance.
+	 * @throws KIMBridgeException when the instance could not be initialized.
+	 */
 	private void createKIMBridge() throws KIMBridgeException {
-		try {
-			ILogger connectorLogger = loggerFactory.createLogger(KIMConnector.LOG_COMPONENT);
-			connector = new KIMConnector(connectorLogger);
-			kimBridge = new KIMBridge(loggerFactory, connector, syncState);
-		} catch (RemoteException e) {
-			throw KIMBridgeException.connectingToKim(e);
-		}
+		ILogger connectorLogger = loggerFactory.createLogger(KIMConnector.LOG_COMPONENT);
+		connector = new KIMConnector(connectorLogger);
+		kimBridge = new KIMBridge(loggerFactory, connector, syncState);
 	}
 
+	/**
+	 * Creates remote document repositories.
+	 * @throws StateRestoreException when state of the repositories could not be fully restored.
+	 * @throws ConfigurationException when the configuration does not contain all required values.
+	 */
 	private void createRepositories() throws StateRestoreException, ConfigurationException {
 		RepositoryConfigurator repoConfigurator = new RepositoryConfigurator(config);
 		repoConfigurator.initializeRepositories(kimBridge);
 	}
 
 
+	/**
+	 * Connects to KIM Platform and schedules indexing tasks.
+	 * @throws Exception when any exception occurs. Required by {@code Daemon} interface.
+	 */
 	@Override
 	public void start() throws Exception {
-		connector.connect();
-		scheduler.schedule(task, 0, Long.parseLong(config.get(KEY_INDEX_PERIOD)));
+		try {
+			connector.connect();
+			scheduler.schedule(task, 0, Long.parseLong(config.get(KEY_INDEX_PERIOD)));
+		} catch (RemoteException e) {
+			throw KIMBridgeException.connectingToKim(e);
+		}
 	}
 
+	/**
+	 * Stops the service.
+	 * @throws Exception when any exception occurs. Required by {@code Daemon} interface.
+	 */
 	@Override
 	public void stop() throws Exception {
 		scheduler.cancel();
@@ -123,6 +166,9 @@ public class KIMBridgeDaemon implements Daemon {
 		syncState.save();
 	}
 
+	/**
+	 * Removes all service data.
+	 */
 	@Override
 	public void destroy() {
 
