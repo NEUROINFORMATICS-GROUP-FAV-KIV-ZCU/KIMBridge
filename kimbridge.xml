@@ -217,9 +217,104 @@
     <!-- Perform any build initialization in this target -->
   </target>
   
-  <target name="clean" depends="clean.module.kimbridge" description="cleanup all"/>
+  <target name="clean" depends="clean.module.kimbridge, clean.artifact.kimbridge:jar" description="cleanup all"/>
   
   <target name="build.modules" depends="init, clean, compile.module.kimbridge" description="build all modules"/>
   
-  <target name="all" depends="build.modules" description="build all"/>
+  <target name="init.artifacts">
+    <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
+    <property name="artifact.output.kimbridge:jar" value="${basedir}/out/artifacts/KIMBridge_jar"/>
+    <mkdir dir="${artifacts.temp.dir}"/>
+    <property name="temp.jar.path.KIMBridge.jar" value="${artifacts.temp.dir}/KIMBridge.jar"/>
+  </target>
+  
+  <target name="clean.artifact.kimbridge:jar" description="clean KIMBridge:jar artifact output">
+    <delete dir="${artifact.output.kimbridge:jar}"/>
+  </target>
+  
+  <target name="artifact.kimbridge:jar" depends="init.artifacts, compile.module.kimbridge" description="Build &#39;KIMBridge:jar&#39; artifact">
+    <mkdir dir="${artifact.output.kimbridge:jar}"/>
+    <jar destfile="${temp.jar.path.KIMBridge.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
+      <zipfileset dir="${kimbridge.output.dir}"/>
+    </jar>
+    <copy file="${temp.jar.path.KIMBridge.jar}" tofile="${artifact.output.kimbridge:jar}/KIMBridge.jar"/>
+    <mkdir dir="${artifact.output.kimbridge:jar}/libs"/>
+    <copy file="${basedir}/lib/commons-daemon/commons-daemon-1.0.14.jar" tofile="${artifact.output.kimbridge:jar}/libs/commons-daemon-1.0.14.jar"/>
+    <copy file="${basedir}/lib/google-api/google-api-services-drive-v2-rev5-1.7.2-beta.jar" tofile="${artifact.output.kimbridge:jar}/libs/google-api-services-drive-v2-rev5-1.7.2-beta.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/gson-2.1.jar" tofile="${artifact.output.kimbridge:jar}/libs/gson-2.1.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/xpp3-1.1.4c.jar" tofile="${artifact.output.kimbridge:jar}/libs/xpp3-1.1.4c.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/guava-11.0.1.jar" tofile="${artifact.output.kimbridge:jar}/libs/guava-11.0.1.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/jsr305-1.3.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/jsr305-1.3.9.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/httpcore-4.0.1.jar" tofile="${artifact.output.kimbridge:jar}/libs/httpcore-4.0.1.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/jdo2-api-2.3-eb.jar" tofile="${artifact.output.kimbridge:jar}/libs/jdo2-api-2.3-eb.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/httpclient-4.0.3.jar" tofile="${artifact.output.kimbridge:jar}/libs/httpclient-4.0.3.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/protobuf-java-2.2.0.jar" tofile="${artifact.output.kimbridge:jar}/libs/protobuf-java-2.2.0.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/transaction-api-1.1.jar" tofile="${artifact.output.kimbridge:jar}/libs/transaction-api-1.1.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/commons-logging-1.1.1.jar" tofile="${artifact.output.kimbridge:jar}/libs/commons-logging-1.1.1.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/jackson-core-asl-1.9.4.jar" tofile="${artifact.output.kimbridge:jar}/libs/jackson-core-asl-1.9.4.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/google-api-client-1.10.3-beta.jar" tofile="${artifact.output.kimbridge:jar}/libs/google-api-client-1.10.3-beta.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/google-http-client-1.10.3-beta.jar" tofile="${artifact.output.kimbridge:jar}/libs/google-http-client-1.10.3-beta.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/google-oauth-client-1.10.1-beta.jar" tofile="${artifact.output.kimbridge:jar}/libs/google-oauth-client-1.10.1-beta.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/google-api-client-servlet-1.10.3-beta.jar" tofile="${artifact.output.kimbridge:jar}/libs/google-api-client-servlet-1.10.3-beta.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/google-api-client-android2-1.10.3-beta.jar" tofile="${artifact.output.kimbridge:jar}/libs/google-api-client-android2-1.10.3-beta.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/google-api-client-appengine-1.10.3-beta.jar" tofile="${artifact.output.kimbridge:jar}/libs/google-api-client-appengine-1.10.3-beta.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/google-http-client-android2-1.10.3-beta.jar" tofile="${artifact.output.kimbridge:jar}/libs/google-http-client-android2-1.10.3-beta.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/google-http-client-android3-1.10.3-beta.jar" tofile="${artifact.output.kimbridge:jar}/libs/google-http-client-android3-1.10.3-beta.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/google-oauth-client-servlet-1.10.1-beta.jar" tofile="${artifact.output.kimbridge:jar}/libs/google-oauth-client-servlet-1.10.1-beta.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/google-http-client-appengine-1.10.3-beta.jar" tofile="${artifact.output.kimbridge:jar}/libs/google-http-client-appengine-1.10.3-beta.jar"/>
+    <copy file="${basedir}/lib/google-api/libs/google-oauth-client-appengine-1.10.1-beta.jar" tofile="${artifact.output.kimbridge:jar}/libs/google-oauth-client-appengine-1.10.1-beta.jar"/>
+    <copy file="${basedir}/lib/kim/kim-api.jar" tofile="${artifact.output.kimbridge:jar}/libs/kim-api.jar"/>
+    <copy file="${basedir}/lib/kim/libs/slf4j-api-1.6.1.jar" tofile="${artifact.output.kimbridge:jar}/libs/slf4j-api-1.6.1.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-util-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-util-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-model-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-model-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-query-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-query-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-rio-n3-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-rio-n3-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-rio-api-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-rio-api-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-rio-trig-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-rio-trig-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-rio-trix-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-rio-trix-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-sail-api-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-sail-api-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/log4j-over-slf4j-1.6.1.jar" tofile="${artifact.output.kimbridge:jar}/libs/log4j-over-slf4j-1.6.1.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-rio-binary-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-rio-binary-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-rio-rdfxml-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-rio-rdfxml-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-rio-turtle-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-rio-turtle-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-sail-rdbms-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-sail-rdbms-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-http-client-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-http-client-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-sail-memory-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-sail-memory-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-rio-ntriples-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-rio-ntriples-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-http-protocol-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-http-protocol-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/channel_iface_impl_stub-1.0.jar" tofile="${artifact.output.kimbridge:jar}/libs/channel_iface_impl_stub-1.0.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-repository-api-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-repository-api-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-sail-nativerdf-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-sail-nativerdf-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-queryparser-api-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-queryparser-api-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-repository-http-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-repository-http-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-repository-sail-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-repository-sail-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-sail-inferencer-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-sail-inferencer-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-repository-event-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-repository-event-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-queryparser-serql-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-queryparser-serql-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-queryresultio-api-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-queryresultio-api-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-repository-sparql-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-repository-sparql-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-queryalgebra-model-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-queryalgebra-model-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-queryparser-sparql-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-queryparser-sparql-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-queryresultio-text-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-queryresultio-text-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-repository-dataset-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-repository-dataset-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-repository-manager-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-repository-manager-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-queryresultio-binary-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-queryresultio-binary-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-queryalgebra-evaluation-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-queryalgebra-evaluation-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-queryresultio-sparqlxml-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-queryresultio-sparqlxml-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-repository-contextaware-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-repository-contextaware-2.6.9.jar"/>
+    <copy file="${basedir}/lib/kim/libs/sesame-queryresultio-sparqljson-2.6.9.jar" tofile="${artifact.output.kimbridge:jar}/libs/sesame-queryresultio-sparqljson-2.6.9.jar"/>
+    <copy file="${basedir}/lib/linkedin-j/linkedin-j.jar" tofile="${artifact.output.kimbridge:jar}/libs/linkedin-j.jar"/>
+    <copy file="${basedir}/lib/linkedin-j/lib/commons-codec-1.3.jar" tofile="${artifact.output.kimbridge:jar}/libs/commons-codec-1.3.jar"/>
+    <copy file="${basedir}/lib/linkedin-j/lib/signpost-core-1.2.1.1.jar" tofile="${artifact.output.kimbridge:jar}/libs/signpost-core-1.2.1.1.jar"/>
+    <copy file="${basedir}/security.policy" tofile="${artifact.output.kimbridge:jar}/security.policy"/>
+    <copy file="${basedir}/config.example.xml" tofile="${artifact.output.kimbridge:jar}/config.example.xml"/>
+  </target>
+  
+  <target name="build.all.artifacts" depends="artifact.kimbridge:jar" description="Build all artifacts">
+    
+    <!-- Delete temporary files -->
+    <delete dir="${artifacts.temp.dir}"/>
+  </target>
+  
+  <target name="all" depends="build.modules, build.all.artifacts" description="build all"/>
 </project>

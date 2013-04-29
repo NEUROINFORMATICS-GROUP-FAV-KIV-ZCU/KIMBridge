@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<kimBridge>
+    <configuration>
+        <!-- New documents downloading & indexing period in milliseconds. Defaults to 5min. -->
+        <indexPeriod>300000</indexPeriod>
+        <!-- Path to the synchronization state file. Must be absolute for KIMBridge service. -->
+        <syncFile>./state.bin</syncFile>
+    </configuration>
+    <factories>
+        <!-- Google Drive repository factory. -->
+        <googleDrive class="cz.zcu.kiv.eeg.KIMBridge.repository.google.DriveRepositoryFactory">
+            <appName>KIMBridge</appName>
+            <accountId>your-service-account@developer.gserviceaccount.com</accountId>
+            <!-- Path to Google Service Account's private key. Must be absolute for KIMBridge service. -->
+            <privateKey>your-privatekey.p12</privateKey>
+        </googleDrive>
+        <!-- LinkedIn repository factory. -->
+        <linkedIn class="cz.zcu.kiv.eeg.KIMBridge.repository.linkedin.LinkedInRepositoryFactory">
+            <consumerKey>yourConsumerKey</consumerKey>
+            <consumerSecret>yourConsumerSecret</consumerSecret>
+            <token>yourUserToken</token>
+            <tokenSecret>yourUserSecret</tokenSecret>
+        </linkedIn>
+    </factories>
+    <repositories>
+        <!-- Google Drive repository, only one can be configured. -->
+        <drive type="googleDrive" />
+
+        <!-- Example LinkedIn groups. -->
+        <brainPages type="linkedIn"><gid>4166025</gid></brainPages>
+        <bciGroup type="linkedIn"><gid>1103077</gid></bciGroup>
+        <compNeuro type="linkedIn"><gid>1376707</gid></compNeuro>
+        <signalProcessing type="linkedIn"><gid>959647</gid></signalProcessing>
+        <neuroFeedback type="linkedIn"><gid>1825465</gid></neuroFeedback>
+    </repositories>
+</kimBridge>

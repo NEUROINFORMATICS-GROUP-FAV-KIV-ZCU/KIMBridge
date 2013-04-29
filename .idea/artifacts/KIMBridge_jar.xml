@@ -10,8 +10,13 @@
         <element id="library" level="project" name="google-api-services-drive-v2-rev5-1.7.2-beta" />
         <element id="library" level="project" name="kim-api" />
         <element id="library" level="project" name="linkedin-j" />
+        <element id="dir-copy" path="$PROJECT_DIR$/init.d" />
       </element>
       <element id="file-copy" path="$PROJECT_DIR$/security.policy" />
+      <element id="file-copy" path="$PROJECT_DIR$/config.example.xml" />
+      <element id="directory" name="init.d">
+        <element id="dir-copy" path="$PROJECT_DIR$/init.d" />
+      </element>
     </root>
   </artifact>
 </component>
