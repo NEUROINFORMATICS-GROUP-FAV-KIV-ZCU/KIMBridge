@@ -7,8 +7,11 @@
     <JAVADOC />
     <SOURCES>
       <root url="file://$PROJECT_DIR$/lib/google-api/libs" />
+      <root url="jar://$PROJECT_DIR$/lib/google-api/google-api-services-drive-v2-rev5-1.7.2-beta-sources.jar!/" />
+      <root url="file://$PROJECT_DIR$/lib/google-api/lib-src" />
     </SOURCES>
     <jarDirectory url="file://$PROJECT_DIR$/lib/google-api/libs" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/lib/google-api/lib-src" recursive="false" type="SOURCES" />
     <jarDirectory url="file://$PROJECT_DIR$/lib/google-api/libs" recursive="false" type="SOURCES" />
   </library>
 </component>

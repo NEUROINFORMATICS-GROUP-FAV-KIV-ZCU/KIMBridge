@@ -24,6 +24,8 @@ public class KIMBridgeDaemon implements Daemon {
 
 	private static final String CONFIG_FILE = "./config.xml";
 
+	private ILogger logger;
+
 	private Timer scheduler;
 
 	private ILoggerFactory loggerFactory;
@@ -80,7 +82,19 @@ public class KIMBridgeDaemon implements Daemon {
 	public void init(DaemonContext daemonContext) throws DaemonInitException, Exception {
 		scheduler = new Timer();
 		loggerFactory = new ConsoleLoggerFactory();
-		createConfigurator();
+		logger = loggerFactory.createLogger("KIMBridgeDaemon");
+		String configPath = CONFIG_FILE;
+		if (daemonContext == null) {
+			logger.logMessage("Running without daemon context with default configuration in %s", CONFIG_FILE);
+		} else {
+			String[] arguments = daemonContext.getArguments();
+			logger.logMessage("Running in daemon context with %d params: %s", arguments.length, buildArgs(arguments));
+			if (arguments.length > 0) {
+				configPath = arguments[0];
+			}
+		}
+
+		createConfigurator(configPath);
 		createSyncState();
 		createKIMBridge();
 		createRepositories();
@@ -88,19 +102,29 @@ public class KIMBridgeDaemon implements Daemon {
 		task = new KIMIndexTask(kimBridge);
 	}
 
+	private String buildArgs(String[] args) {
+		StringBuilder stringBuilder = new StringBuilder();
+		for (String s : args) {
+			stringBuilder.append(s);
+			stringBuilder.append(" ");
+		}
+		return stringBuilder.toString();
+	}
+
 	/**
 	 * Creates configurator, loads default configuration and a instance-specific configuration file (config.xml by default).
 	 * @throws KIMBridgeException when the configuration could not be loaded.
 	 */
-	private void createConfigurator() throws KIMBridgeException {
+	private void createConfigurator(String configPath) throws KIMBridgeException {
 		try {
 			ILogger configLogger = loggerFactory.createLogger(Configurator.LOG_COMPONENT);
 			config = new Configurator(configLogger);
-			config.loadDefaults();
 
-			File configFile = new File(CONFIG_FILE);
+			File configFile = new File(configPath);
 			if (configFile.exists()) {
 				config.loadFile(configFile);
+			} else {
+				throw new ConfigurationException(String.format("Configuration file %s is not present.", configFile.getPath()));
 			}
 		} catch (ConfigurationException|IOException e) {
 			throw KIMBridgeException.loadingConfiguration(e);

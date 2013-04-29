@@ -33,8 +33,6 @@ public class Configurator {
 
 	private static final String ATTR_REPO_TYPE = "type";
 
-	private static final String DEFAULT_CONFIG = "config/default.xml";
-
 	private ILogger logger;
 
 	private Map<String, String> configuration = new TreeMap<>();
@@ -57,20 +55,6 @@ public class Configurator {
 			builder = factory.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
 			throw new ConfigurationException("The XML document parser is not configured properly.", e);
-		}
-	}
-
-	/**
-	 * Loads default configuration.
-	 * @throws KIMBridgeException if the default configuration could not be loaded.
-	 */
-	public void loadDefaults() throws KIMBridgeException {
-		logger.logMessage("Loading default configuration.");
-		InputStream stream = getClass().getResourceAsStream(DEFAULT_CONFIG);
-		try {
-			load(stream);
-		} catch (ConfigurationException e) {
-			throw new KIMBridgeException("Error while loading configuration.", e);
 		}
 	}
 
