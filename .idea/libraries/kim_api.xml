@@ -1,9 +1,11 @@
 <component name="libraryTable">
   <library name="kim-api">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/kim-api.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/kim/kim-api.jar!/" />
+      <root url="file://$PROJECT_DIR$/lib/kim/libs" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/lib/kim/libs" recursive="false" />
   </library>
 </component>
