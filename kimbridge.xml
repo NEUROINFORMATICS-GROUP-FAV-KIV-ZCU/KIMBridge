@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="kimbridge" default="all">
+  
+  
+  <property file="kimbridge.properties"/>
+  <!-- Uncomment the following property if no tests compilation is needed -->
+  <!-- 
+  <property name="skip.tests" value="true"/>
+   -->
+  
+  <!-- Compiler options -->
+  
+  <property name="compiler.debug" value="on"/>
+  <property name="compiler.generate.no.warnings" value="off"/>
+  <property name="compiler.args" value=""/>
+  <property name="compiler.max.memory" value="128m"/>
+  <patternset id="ignored.files">
+    <exclude name="**/CVS/**"/>
+    <exclude name="**/SCCS/**"/>
+    <exclude name="**/RCS/**"/>
+    <exclude name="**/rcs/**"/>
+    <exclude name="**/.DS_Store/**"/>
+    <exclude name="**/.svn/**"/>
+    <exclude name="**/.pyc/**"/>
+    <exclude name="**/.pyo/**"/>
+    <exclude name="**/*.pyc/**"/>
+    <exclude name="**/*.pyo/**"/>
+    <exclude name="**/.git/**"/>
+    <exclude name="**/*.hprof/**"/>
+    <exclude name="**/_svn/**"/>
+    <exclude name="**/.hg/**"/>
+    <exclude name="**/*.lib/**"/>
+    <exclude name="**/*~/**"/>
+    <exclude name="**/__pycache__/**"/>
+    <exclude name="**/.bundle/**"/>
+    <exclude name="**/*.rbc/**"/>
+  </patternset>
+  <patternset id="library.patterns">
+    <include name="*.zip"/>
+    <include name="*.apk"/>
+    <include name="*.war"/>
+    <include name="*.egg"/>
+    <include name="*.ear"/>
+    <include name="*.ane"/>
+    <include name="*.swc"/>
+    <include name="*.jar"/>
+  </patternset>
+  <patternset id="compiler.resources">
+    <exclude name="**/?*.java"/>
+    <exclude name="**/?*.form"/>
+    <exclude name="**/?*.class"/>
+    <exclude name="**/?*.groovy"/>
+    <exclude name="**/?*.scala"/>
+    <exclude name="**/?*.flex"/>
+    <exclude name="**/?*.kt"/>
+    <exclude name="**/?*.clj"/>
+  </patternset>
+  
+  <!-- JDK definitions -->
+  
+  <property name="jdk.bin.1.7" value="${jdk.home.1.7}/bin"/>
+  <path id="jdk.classpath.1.7">
+    <fileset dir="${jdk.home.1.7}">
+      <include name="jre/lib/charsets.jar"/>
+      <include name="jre/lib/deploy.jar"/>
+      <include name="jre/lib/javaws.jar"/>
+      <include name="jre/lib/jce.jar"/>
+      <include name="jre/lib/jfr.jar"/>
+      <include name="jre/lib/jfxrt.jar"/>
+      <include name="jre/lib/jsse.jar"/>
+      <include name="jre/lib/management-agent.jar"/>
+      <include name="jre/lib/plugin.jar"/>
+      <include name="jre/lib/resources.jar"/>
+      <include name="jre/lib/rt.jar"/>
+      <include name="jre/lib/ext/access-bridge-64.jar"/>
+      <include name="jre/lib/ext/dnsns.jar"/>
+      <include name="jre/lib/ext/jaccess.jar"/>
+      <include name="jre/lib/ext/localedata.jar"/>
+      <include name="jre/lib/ext/sunec.jar"/>
+      <include name="jre/lib/ext/sunjce_provider.jar"/>
+      <include name="jre/lib/ext/sunmscapi.jar"/>
+      <include name="jre/lib/ext/zipfs.jar"/>
+    </fileset>
+  </path>
+  
+  <property name="project.jdk.home" value="${jdk.home.1.7}"/>
+  <property name="project.jdk.bin" value="${jdk.bin.1.7}"/>
+  <property name="project.jdk.classpath" value="jdk.classpath.1.7"/>
+  
+  
+  <!-- Project Libraries -->
+  
+  <path id="library.commons-daemon-1.0.14.classpath">
+    <pathelement location="${basedir}/lib/commons-daemon/commons-daemon-1.0.14.jar"/>
+  </path>
+  
+  <path id="library.google-api-services-drive-v2-rev5-1.7.2-beta.classpath">
+    <fileset dir="${basedir}/lib/google-api/libs">
+      <patternset refid="library.patterns"/>
+    </fileset>
+    <pathelement location="${basedir}/lib/google-api/google-api-services-drive-v2-rev5-1.7.2-beta.jar"/>
+  </path>
+  
+  <path id="library.kim-api.classpath">
+    <fileset dir="${basedir}/lib/kim/libs">
+      <patternset refid="library.patterns"/>
+    </fileset>
+    <pathelement location="${basedir}/lib/kim/kim-api.jar"/>
+  </path>
+  
+  <path id="library.linkedin-j.classpath">
+    <fileset dir="${basedir}/lib/linkedin-j/lib">
+      <patternset refid="library.patterns"/>
+    </fileset>
+    <pathelement location="${basedir}/lib/linkedin-j/linkedin-j.jar"/>
+  </path>
+  
+  <!-- Modules -->
+  
+  
+  <!-- Module KIMBridge -->
+  
+  <dirname property="module.kimbridge.basedir" file="${ant.file}"/>
+  
+  
+  <property name="module.jdk.home.kimbridge" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.kimbridge" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.kimbridge" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.kimbridge" value="${compiler.args}"/>
+  
+  <property name="kimbridge.output.dir" value="${module.kimbridge.basedir}/out/production/KIMBridge"/>
+  <property name="kimbridge.testoutput.dir" value="${module.kimbridge.basedir}/out/test/KIMBridge"/>
+  
+  <path id="kimbridge.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="kimbridge.module.production.classpath">
+    <path refid="${module.jdk.classpath.kimbridge}"/>
+    <path refid="library.google-api-services-drive-v2-rev5-1.7.2-beta.classpath"/>
+    <path refid="library.linkedin-j.classpath"/>
+    <path refid="library.commons-daemon-1.0.14.classpath"/>
+    <path refid="library.kim-api.classpath"/>
+  </path>
+  
+  <path id="kimbridge.runtime.production.module.classpath">
+    <pathelement location="${kimbridge.output.dir}"/>
+    <path refid="library.google-api-services-drive-v2-rev5-1.7.2-beta.classpath"/>
+    <path refid="library.linkedin-j.classpath"/>
+    <path refid="library.commons-daemon-1.0.14.classpath"/>
+    <path refid="library.kim-api.classpath"/>
+  </path>
+  
+  <path id="kimbridge.module.classpath">
+    <path refid="${module.jdk.classpath.kimbridge}"/>
+    <pathelement location="${kimbridge.output.dir}"/>
+    <path refid="library.google-api-services-drive-v2-rev5-1.7.2-beta.classpath"/>
+    <path refid="library.linkedin-j.classpath"/>
+    <path refid="library.commons-daemon-1.0.14.classpath"/>
+    <path refid="library.kim-api.classpath"/>
+  </path>
+  
+  <path id="kimbridge.runtime.module.classpath">
+    <pathelement location="${kimbridge.testoutput.dir}"/>
+    <pathelement location="${kimbridge.output.dir}"/>
+    <path refid="library.google-api-services-drive-v2-rev5-1.7.2-beta.classpath"/>
+    <path refid="library.linkedin-j.classpath"/>
+    <path refid="library.commons-daemon-1.0.14.classpath"/>
+    <path refid="library.kim-api.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.kimbridge">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.kimbridge">
+    <patternset refid="excluded.from.module.kimbridge"/>
+  </patternset>
+  
+  <path id="kimbridge.module.sourcepath">
+    <dirset dir="${module.kimbridge.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.kimbridge" depends="compile.module.kimbridge.production,compile.module.kimbridge.tests" description="Compile module KIMBridge"/>
+  
+  <target name="compile.module.kimbridge.production" description="Compile module KIMBridge; production classes">
+    <mkdir dir="${kimbridge.output.dir}"/>
+    <javac destdir="${kimbridge.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.kimbridge}/javac">
+      <compilerarg line="${compiler.args.kimbridge}"/>
+      <bootclasspath refid="kimbridge.module.bootclasspath"/>
+      <classpath refid="kimbridge.module.production.classpath"/>
+      <src refid="kimbridge.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.kimbridge"/>
+    </javac>
+    
+    <copy todir="${kimbridge.output.dir}">
+      <fileset dir="${module.kimbridge.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.kimbridge.tests" depends="compile.module.kimbridge.production" description="compile module KIMBridge; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.kimbridge" description="cleanup module">
+    <delete dir="${kimbridge.output.dir}"/>
+    <delete dir="${kimbridge.testoutput.dir}"/>
+  </target>
+  
+  <target name="init" description="Build initialization">
+    <!-- Perform any build initialization in this target -->
+  </target>
+  
+  <target name="clean" depends="clean.module.kimbridge" description="cleanup all"/>
+  
+  <target name="build.modules" depends="init, clean, compile.module.kimbridge" description="build all modules"/>
+  
+  <target name="all" depends="build.modules" description="build all"/>
+</project>
