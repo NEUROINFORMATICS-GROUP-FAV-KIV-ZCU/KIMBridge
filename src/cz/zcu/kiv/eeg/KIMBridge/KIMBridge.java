@@ -204,6 +204,20 @@ public class KIMBridge {
 		}
 	}
 
+	/**
+	 * Synchronizes the persisted repository states to the binary file.
+	 *
+	 * Should be called after {@code saveRepositoryStates()}.
+	 */
+	public void persistStates() throws KIMBridgeException {
+		try {
+			state.save();
+		} catch (IOException e) {
+			logger.logException(e);
+			throw KIMBridgeException.persistingStates(e);
+		}
+	}
+
 
 	/**
 	 * Checks repositories for new documents and annotates them.

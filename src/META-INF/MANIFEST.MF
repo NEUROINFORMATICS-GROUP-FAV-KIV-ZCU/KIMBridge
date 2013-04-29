@@ -1,74 +1,33 @@
 Manifest-Version: 1.0
-Class-Path: linkedin-j.jar commons-daemon-1.0.14.jar google-api-servic
- es-drive-v2-rev5-1.7.2-beta.jar kim-api.jar activeio-core-3.1.2.jar a
- ctivemq-core-5.5.1.jar activemq-protobuf-1.1.jar ANCTool-1.2.6.jar an
- t-1.8.1.jar ant-launcher-1.8.1.jar apache-mime4j-0.6.jar asm-3.1.jar 
- avalon-framework-api-4.3.1.jar bcmail-jdk15-1.45.jar bcprov-jdk15-1.4
- 5.jar big-owlim-5.2.jar boilerpipe-1.1.0.jar channel_iface_impl_stub-
- 1.0.jar commons-beanutils-core-1.7.0.jar commons-cli-1.1.jar commons-
- codec-1.5.jar commons-collections-3.2.1.jar commons-compress-1.1.jar 
- commons-configuration-1.5.jar commons-dbcp-1.3.jar commons-httpclient
- -3.1.jar commons-io-1.4.jar commons-lang-2.5.jar commons-net-2.0.jar 
- commons-pool-1.5.4.jar dom4j-1.6.1.jar dsiutils-1.0.12.jar el-api-2.2
- .jar el-impl-2.2.jar FastInfoset-1.2.7.jar fastutil-6.1.0.jar gate-as
- m-3.1.jar gate-asm-5.0.0-beta1.jar gate-compiler-jdt-3.7.1.jar gate-c
- ore-7.0.1-ONTO.jar gate-hmm-UNKNOWN.jar gdoc-serializers-1.0.jar gero
- nimo-j2ee-management_1.1_spec-1.0.1.jar geronimo-jms_1.1_spec-1.1.1.j
- ar geronimo-stax-api_1.0_spec-1.0.1.jar icu4j-3.4.4.jar idrf-1.0.jar 
- iri-0.8-sources.jar iri-0.8.jar ivy-2.2.0.jar jasypt-1.7.jar java-get
- opt-1.0.9.jar jaxen-1.1.jar jcl-over-slf4j-1.6.1.jar jdom-1.0.jar jen
- a-2.6.3.jar jetty-continuation-8.0.0.M3.jar jetty-deploy-8.0.0.M3.jar
-  jetty-http-8.0.0.M3.jar jetty-io-8.0.0.M3.jar jetty-security-8.0.0.M
- 3.jar jetty-server-8.0.0.M3.jar jetty-servlet-8.0.0.M3.jar jetty-util
- -8.0.0.M3.jar jetty-webapp-8.0.0.M3.jar jetty-xml-8.0.0.M3.jar jsap-2
- .1.jar jsp-api-2.2.1-b02.jar jsp-impl-2.2.2-b05.jar jstl-api-1.2.jar 
- jstl-impl-1.2.jar jul-to-slf4j-1.6.1.jar junit-3.8.1.jar kahadb-5.5.1
- .jar key-UNKNOWN.jar kim-corpora-3.7.jar kim-gate-3.7.jar kim-plugin-
- api-3.7.jar kryo-all-1.04.jar license-manager-3.7.jar lkb-gazetteer-3
- .7.jar log4j-over-slf4j-1.6.1.jar logback-classic-0.9.29.jar logback-
- core-0.9.29.jar lucene-core-3.0.2.jar metadata-extractor-2.4.0-beta-1
- .jar mg4j-3.0.1.jar mimir-core-3.2.1.jar mimir-plugin-sesame-3.2.1.ja
- r morph-1.0.5.jar nekohtml-1.9.14.jar netcdf-4.2-min.jar ojdbc14-10.2
- .0.4.0.jar onto-crypto-0.1.jar onto-jsi-1.0b6long.jar opencsv-2.0.jar
-  org.osgi.core-4.1.0.jar pagequeue-UNKNOWN.jar perf4j-0.9.9.jar poi-3
- .7.jar poi-ooxml-3.7.jar poi-ooxml-schemas-3.7.jar poi-scratchpad-3.7
- .jar richnews-TRUNCATED.jar rmicenter-UNKNOWN.jar rmiio-2.0.2.jar rom
- e-0.9.jar serializer-2.7.1.jar servlet-api-3.0.20100224.jar sesame-ht
- tp-client-2.6.9.jar sesame-http-protocol-2.6.9.jar sesame-model-2.6.9
- .jar sesame-query-2.6.9.jar sesame-queryalgebra-evaluation-2.6.9.jar 
- sesame-queryalgebra-model-2.6.9.jar sesame-queryparser-api-2.6.9.jar 
- sesame-queryparser-serql-2.6.9.jar sesame-queryparser-sparql-2.6.9.ja
- r sesame-queryresultio-api-2.6.9.jar sesame-queryresultio-binary-2.6.
- 9.jar sesame-queryresultio-sparqljson-2.6.9.jar sesame-queryresultio-
- sparqlxml-2.6.9.jar sesame-queryresultio-text-2.6.9.jar sesame-reposi
- tory-api-2.6.9.jar sesame-repository-contextaware-2.6.9.jar sesame-re
- pository-dataset-2.6.9.jar sesame-repository-event-2.6.9.jar sesame-r
- epository-http-2.6.9.jar sesame-repository-manager-2.6.9.jar sesame-r
- epository-sail-2.6.9.jar sesame-repository-sparql-2.6.9.jar sesame-ri
- o-api-2.6.9.jar sesame-rio-binary-2.6.9.jar sesame-rio-n3-2.6.9.jar s
- esame-rio-ntriples-2.6.9.jar sesame-rio-rdfxml-2.6.9.jar sesame-rio-t
- rig-2.6.9.jar sesame-rio-trix-2.6.9.jar sesame-rio-turtle-2.6.9.jar s
- esame-sail-api-2.6.9.jar sesame-sail-inferencer-2.6.9.jar sesame-sail
- -memory-2.6.9.jar sesame-sail-nativerdf-2.6.9.jar sesame-sail-rdbms-2
- .6.9.jar sesame-util-2.6.9.jar sil-0.44.2b.jar slf4j-api-1.6.1.jar sp
- ring-asm-3.0.3.RELEASE.jar spring-context-3.0.3.RELEASE.jar spring-ex
- pression-3.0.3.RELEASE.jar stax-1.2.0.jar stax-api-1.0.1.jar sux4j-2.
- 1.jar tagsoup-1.2.jar textcat-1.0.1.jar trove4j-2.0.2.jar wrapper-3.3
- .9.jar wstx-lgpl-3.2.3.jar xalan-2.7.1.jar xercesImpl-2.9.1.jar xml-a
- pis-1.3.04.jar xmlbeans-2.3.0.jar xmlpull-1.1.3.1.jar xmlunit-1.2.jar
-  xpp3-1.1.3.4.O.jar xpp3_min-1.1.4c.jar xstream-1.4.2.jar tika-core-1
- .3.jar tika-parsers-1.3.jar jempbox-1.7.0.jar pdfbox-1.7.0.jar fontbo
- x-1.7.0.jar commons-cli-1.2.jar commons-codec-1.3.jar signpost-core-1
- .2.1.1.jar commons-logging-1.1.1.jar google-api-client-1.10.3-beta.ja
- r google-api-client-android2-1.10.3-beta.jar google-api-client-appeng
- ine-1.10.3-beta.jar google-api-client-servlet-1.10.3-beta.jar google-
- http-client-1.10.3-beta.jar google-http-client-android2-1.10.3-beta.j
- ar google-http-client-android3-1.10.3-beta.jar google-http-client-app
- engine-1.10.3-beta.jar google-oauth-client-1.10.1-beta.jar google-oau
- th-client-appengine-1.10.1-beta.jar google-oauth-client-servlet-1.10.
- 1-beta.jar gson-2.1.jar guava-11.0.1.jar httpclient-4.0.3.jar httpcor
- e-4.0.1.jar jackson-core-asl-1.9.4.jar jdo2-api-2.3-eb.jar jsr305-1.3
- .9.jar protobuf-java-2.2.0.jar transaction-api-1.1.jar xpp3-1.1.4c.ja
- r
+Class-Path: linkedin-j.jar commons-codec-1.3.jar signpost-core-1.2.1.1
+ .jar kim-api.jar slf4j-api-1.6.1.jar sesame-util-2.6.9.jar sesame-mod
+ el-2.6.9.jar sesame-query-2.6.9.jar sesame-rio-n3-2.6.9.jar sesame-ri
+ o-api-2.6.9.jar sesame-rio-trig-2.6.9.jar sesame-rio-trix-2.6.9.jar s
+ esame-sail-api-2.6.9.jar log4j-over-slf4j-1.6.1.jar sesame-rio-binary
+ -2.6.9.jar sesame-rio-rdfxml-2.6.9.jar sesame-rio-turtle-2.6.9.jar se
+ same-sail-rdbms-2.6.9.jar sesame-http-client-2.6.9.jar sesame-sail-me
+ mory-2.6.9.jar sesame-rio-ntriples-2.6.9.jar sesame-http-protocol-2.6
+ .9.jar channel_iface_impl_stub-1.0.jar sesame-repository-api-2.6.9.ja
+ r sesame-sail-nativerdf-2.6.9.jar sesame-queryparser-api-2.6.9.jar se
+ same-repository-http-2.6.9.jar sesame-repository-sail-2.6.9.jar sesam
+ e-sail-inferencer-2.6.9.jar sesame-repository-event-2.6.9.jar sesame-
+ queryparser-serql-2.6.9.jar sesame-queryresultio-api-2.6.9.jar sesame
+ -repository-sparql-2.6.9.jar sesame-queryalgebra-model-2.6.9.jar sesa
+ me-queryparser-sparql-2.6.9.jar sesame-queryresultio-text-2.6.9.jar s
+ esame-repository-dataset-2.6.9.jar sesame-repository-manager-2.6.9.ja
+ r sesame-queryresultio-binary-2.6.9.jar sesame-queryalgebra-evaluatio
+ n-2.6.9.jar sesame-queryresultio-sparqlxml-2.6.9.jar sesame-repositor
+ y-contextaware-2.6.9.jar sesame-queryresultio-sparqljson-2.6.9.jar co
+ mmons-daemon-1.0.14.jar google-api-services-drive-v2-rev5-1.7.2-beta.
+ jar gson-2.1.jar xpp3-1.1.4c.jar guava-11.0.1.jar jsr305-1.3.9.jar ht
+ tpcore-4.0.1.jar jdo2-api-2.3-eb.jar httpclient-4.0.3.jar protobuf-ja
+ va-2.2.0.jar transaction-api-1.1.jar commons-logging-1.1.1.jar jackso
+ n-core-asl-1.9.4.jar google-api-client-1.10.3-beta.jar google-http-cl
+ ient-1.10.3-beta.jar google-oauth-client-1.10.1-beta.jar google-api-c
+ lient-servlet-1.10.3-beta.jar google-api-client-android2-1.10.3-beta.
+ jar google-api-client-appengine-1.10.3-beta.jar google-http-client-an
+ droid2-1.10.3-beta.jar google-http-client-android3-1.10.3-beta.jar go
+ ogle-oauth-client-servlet-1.10.1-beta.jar google-http-client-appengin
+ e-1.10.3-beta.jar google-oauth-client-appengine-1.10.1-beta.jar
 Main-Class: cz.zcu.kiv.eeg.KIMBridge.KIMBridgeDaemon
 

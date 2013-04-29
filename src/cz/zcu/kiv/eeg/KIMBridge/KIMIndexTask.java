@@ -24,6 +24,8 @@ public class KIMIndexTask extends TimerTask {
 	public void run() {
 		try {
 			kimBridge.annotateNewDocuments();
+			kimBridge.saveRepositoryStates();
+			kimBridge.persistStates();
 		} catch (KIMBridgeException e) {
 			// Error was logged by KIMBridge, shall be ignored by the task, we don't want to crash the KIMBridge service.
 		}

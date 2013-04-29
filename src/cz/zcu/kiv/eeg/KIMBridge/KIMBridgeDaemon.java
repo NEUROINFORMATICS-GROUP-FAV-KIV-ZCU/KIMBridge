@@ -163,7 +163,7 @@ public class KIMBridgeDaemon implements Daemon {
 	public void stop() throws Exception {
 		scheduler.cancel();
 		kimBridge.saveRepositoryStates();
-		syncState.save();
+		kimBridge.persistStates();
 	}
 
 	/**

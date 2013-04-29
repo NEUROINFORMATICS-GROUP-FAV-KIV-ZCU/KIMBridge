@@ -52,4 +52,8 @@ public class KIMBridgeException extends Exception {
 	public static KIMBridgeException connectingToKim(Throwable cause) {
 		return new KIMBridgeException("Error while connecting to KIM Platform.", cause);
 	}
+
+	public static KIMBridgeException persistingStates(Throwable cause) {
+		return new KIMBridgeException("Error while persisting repository states.", cause);
+	}
 }

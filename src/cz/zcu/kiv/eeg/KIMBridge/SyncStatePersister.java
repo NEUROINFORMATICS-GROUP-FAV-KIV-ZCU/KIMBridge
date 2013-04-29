@@ -44,7 +44,7 @@ public class SyncStatePersister {
 			states = (Map<String, IRepositoryState>) is.readObject();
 			is.close();
 		} else {
-			logger.logMessage("File %s does not exist, repository states are null.");
+			logger.logMessage("File %s does not exist, repository states are null.", storageFile.getPath());
 		}
 	}
 

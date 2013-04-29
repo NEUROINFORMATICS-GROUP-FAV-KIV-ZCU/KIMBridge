@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact name="KIMBridge:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/KIMBridge_jar</output-path>
+    <root id="root">
+      <element id="archive" name="KIMBridge.jar">
+        <element id="module-output" name="KIMBridge" />
+      </element>
+      <element id="library" level="project" name="linkedin-j" />
+      <element id="library" level="project" name="kim-api" />
+      <element id="library" level="project" name="commons-daemon-1.0.14" />
+      <element id="library" level="project" name="google-api-services-drive-v2-rev5-1.7.2-beta" />
+    </root>
+  </artifact>
+</component>

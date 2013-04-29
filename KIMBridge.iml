@@ -7,46 +7,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="kim-api" level="project" />
-    <orderEntry type="library" exported="" name="google-api-services-drive-v2-rev5-1.7.2-beta" level="project" />
-    <orderEntry type="library" exported="" name="linkedin-j" level="project" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="file://C:/webserver/kim-platform-3.7/lib" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="file://C:/webserver/kim-platform-3.7/lib" />
-        </SOURCES>
-        <jarDirectory url="file://C:/webserver/kim-platform-3.7/lib" recursive="false" />
-        <jarDirectory url="file://C:/webserver/kim-platform-3.7/lib" recursive="false" type="SOURCES" />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="file://C:/webserver/google-drive-sdk/libs" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="file://C:/webserver/google-drive-sdk/libs-sources" />
-        </SOURCES>
-        <jarDirectory url="file://C:/webserver/google-drive-sdk/libs" recursive="false" />
-        <jarDirectory url="file://C:/webserver/google-drive-sdk/libs-sources" recursive="false" type="SOURCES" />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="file://D:/work/libs/linkedin-j/lib" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-        <jarDirectory url="file://D:/work/libs/linkedin-j/lib" recursive="false" />
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="google-api-services-drive-v2-rev5-1.7.2-beta" level="project" />
+    <orderEntry type="library" name="linkedin-j" level="project" />
     <orderEntry type="library" name="commons-daemon-1.0.14" level="project" />
+    <orderEntry type="library" name="kim-api" level="project" />
   </component>
 </module>
 
