@@ -10,7 +10,6 @@ import org.apache.commons.daemon.DaemonInitException;
 
 import java.io.File;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.Timer;
 
 /**
@@ -18,11 +17,14 @@ import java.util.Timer;
  */
 public class KIMBridgeDaemon implements Daemon {
 	/** New document indexing period. Default: 5min. */
-	private static final String KEY_INDEX_PERIOD = "indexPeriod";
+	private static final String KEY_INDEX_INTERVAL = "indexInterval";
 
 	private static final String KEY_SYNC_FILE = "syncFile";
 
 	private static final String CONFIG_FILE = "./config.xml";
+
+	/** Number of milliseconds for conversion. */
+	private static final long UNIT_SECONDS = 1000;
 
 	private ILogger logger;
 
@@ -173,10 +175,10 @@ public class KIMBridgeDaemon implements Daemon {
 	public void start() throws Exception {
 		try {
 			connector.connect();
-			scheduler.schedule(task, 0, Long.parseLong(config.get(KEY_INDEX_PERIOD)));
-		} catch (RemoteException e) {
-			throw KIMBridgeException.connectingToKim(e);
+		} catch (KIMConnectionException e) {
+			// Connection failed, KIMBridge will retry at the first document fetch.
 		}
+		scheduler.schedule(task, 0, Long.parseLong(config.get(KEY_INDEX_INTERVAL)) * UNIT_SECONDS);
 	}
 
 	/**

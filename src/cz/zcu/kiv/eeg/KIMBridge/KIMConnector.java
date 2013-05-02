@@ -72,16 +72,54 @@ public class KIMConnector {
 		this.logger = logger;
 	}
 
+
+	/**
+	 * Checks whether the connector is connected.
+	 * @return {@code true} if the connector is connected to KIM.
+	 */
+	public boolean isConnected() {
+		return (kimService != null);
+	}
+
 	/**
 	 * Connects to the KIMPlatform and initializes services.
 	 * @throws RemoteException when the connection fails.
 	 */
-	public void connect() throws RemoteException {
+	public void connect() throws KIMConnectionException {
 		logger.logMessage("Connecting to the KIM Platform.");
-		kimService = GetService.from(kimHost, kimPort);
-		corpora = kimService.getCorporaAPI();
-		docRepository = kimService.getDocumentRepositoryAPI();
-		semanticAnnotation = kimService.getSemanticAnnotationAPI();
+		try {
+			kimService = GetService.from(kimHost, kimPort);
+			corpora = kimService.getCorporaAPI();
+			docRepository = kimService.getDocumentRepositoryAPI();
+			semanticAnnotation = kimService.getSemanticAnnotationAPI();
+		} catch (RemoteException e) {
+			logger.logMessage("Connection to KIM has failed.");
+			resetConnection(e);
+			throw new KIMConnectionException(e);
+		}
+	}
+
+	/**
+	 * Cleans the remote services.
+	 *  @param e Exception to be logged.
+	 */
+	private void resetConnection(Exception e) {
+		if (e != null ) {
+			logger.logException(e);
+		}
+		kimService = null;
+		corpora = null;
+		docRepository = null;
+		semanticAnnotation = null;
+	}
+
+	/**
+	 * Handles the connection error during communication.
+	 */
+	private KIMConnectionException connectionLost(Exception e)  {
+		logger.logMessage("Connection to KIM has been lost.");
+		resetConnection(e);
+		return new KIMConnectionException(e);
 	}
 
 	/**
@@ -89,14 +127,20 @@ public class KIMConnector {
 	 * @return List of document IDs.
 	 * @throws KIMQueryException when the document query fails.
 	 */
-	public List<Long> listDocumentIds() throws KIMQueryException {
-		DocumentQuery query = new DocumentQuery();
-		List<Long> result = new LinkedList<>();
-		DocumentQueryResult res = docRepository.getDocumentIds(query);
-		for (DocumentQueryResultRow row : res) {
-			result.add(row.getDocumentId());
+	public List<Long> listDocumentIds() throws KIMQueryException, KIMConnectionException {
+		try {
+			DocumentQuery query = new DocumentQuery();
+			List<Long> result = new LinkedList<>();
+			DocumentQueryResult res = docRepository.getDocumentIds(query);
+			for (DocumentQueryResultRow row : res) {
+				result.add(row.getDocumentId());
+			}
+			return result;
+		} catch (KIMQueryException e) {
+			throw new KIMQueryException();
+		} catch (Exception e) {
+			throw connectionLost(e);
 		}
-		return result;
 	}
 
 	/**
@@ -105,8 +149,14 @@ public class KIMConnector {
 	 * @return Document data.
 	 * @throws KIMQueryException when the document could not be fetched.
 	 */
-	public KIMBridgeDocument getDocument(long id) throws KIMQueryException {
-		return new KIMBridgeDocument(docRepository.loadDocument(id));
+	public KIMBridgeDocument getDocument(long id) throws KIMQueryException, KIMConnectionException {
+		try {
+			return new KIMBridgeDocument(docRepository.loadDocument(id));
+		} catch (KIMQueryException e) {
+			throw e;
+		} catch (Exception e) {
+			throw connectionLost(e);
+		}
 	}
 
 	/**
@@ -114,8 +164,12 @@ public class KIMConnector {
 	 * @param id Document ID.
 	 * @return Map with document features.
 	 */
-	public Map<String, Object> getDocumentMetadata(long id) {
-		return docRepository.getDocumentFeatures(id);
+	public Map<String, Object> getDocumentMetadata(long id) throws KIMConnectionException {
+		try {
+			return docRepository.getDocumentFeatures(id);
+		} catch (Exception e) {
+			throw connectionLost(e);
+		}
 	}
 
 	/**
@@ -124,7 +178,7 @@ public class KIMConnector {
 	 * @return Created KIM document.
 	 * @throws KIMCorporaException when the document could not be created.
 	 */
-	public KIMBridgeDocument createDocumentFromString(String text) throws KIMCorporaException {
+	public KIMBridgeDocument createDocumentFromString(String text) throws KIMCorporaException, KIMConnectionException {
 		return createDocumentFromString(text, true);
 	}
 
@@ -135,8 +189,14 @@ public class KIMConnector {
 	 * @return Created KIM document.
 	 * @throws KIMCorporaException when the document could not be created.
 	 */
-	public KIMBridgeDocument createDocumentFromString(String text, boolean noMarkup) throws KIMCorporaException {
-		return new KIMBridgeDocument(corpora.createDocument(text, noMarkup));
+	public KIMBridgeDocument createDocumentFromString(String text, boolean noMarkup) throws KIMCorporaException, KIMConnectionException {
+		try {
+			return new KIMBridgeDocument(corpora.createDocument(text, noMarkup));
+		} catch (KIMCorporaException e) {
+			throw e;
+		} catch (Exception e) {
+			throw connectionLost(e);
+		}
 	}
 
 	/**
@@ -146,8 +206,14 @@ public class KIMConnector {
 	 * @return Created KIM document.
 	 * @throws KIMCorporaException when the document could not be created.
 	 */
-	public KIMBridgeDocument createDocumentFromBinaryData(byte[] bytes, String extension) throws KIMCorporaException {
-		return new KIMBridgeDocument(corpora.createDocument(bytes, extension));
+	public KIMBridgeDocument createDocumentFromBinaryData(byte[] bytes, String extension) throws KIMCorporaException, KIMConnectionException {
+		try {
+			return new KIMBridgeDocument(corpora.createDocument(bytes, extension));
+		} catch (KIMCorporaException e) {
+			throw e;
+		} catch (Exception e) {
+			throw connectionLost(e);
+		}
 	}
 
 	/**
@@ -156,8 +222,14 @@ public class KIMConnector {
 	 * @throws RemoteException when the annotation service fails.
 	 * @throws KIMCorporaException when the document features could not be annotated.
 	 */
-	public void annotateDocument(KIMBridgeDocument document) throws RemoteException, KIMCorporaException {
-		semanticAnnotation.execute(document.getDocument());
+	public void annotateDocument(KIMBridgeDocument document) throws RemoteException, KIMCorporaException, KIMConnectionException {
+		try {
+			semanticAnnotation.execute(document.getDocument());
+		} catch (RemoteException|KIMCorporaException e) {
+			throw e;
+		} catch (Exception e) {
+			throw connectionLost(e);
+		}
 	}
 
 	/**
@@ -166,8 +238,14 @@ public class KIMConnector {
 	 * @throws DocumentRepositoryException when the document could not be stored.
 	 * @throws KIMCorporaException when the document features could not be stored.
 	 */
-	public void storeDocument(KIMBridgeDocument document) throws DocumentRepositoryException, KIMCorporaException {
-		docRepository.addDocument(document.getDocument());
+	public void storeDocument(KIMBridgeDocument document) throws DocumentRepositoryException, KIMCorporaException, KIMConnectionException {
+		try {
+			docRepository.addDocument(document.getDocument());
+		} catch (DocumentRepositoryException|KIMCorporaException e) {
+			throw e;
+		} catch (Exception e) {
+			throw connectionLost(e);
+		}
 	}
 
 	/**
@@ -176,8 +254,14 @@ public class KIMConnector {
 	 * @throws DocumentRepositoryException when the document could not be synchronized.
 	 * @throws KIMCorporaException when the document features could not be synchronized.
 	 */
-	public void synchronizeDocument(KIMBridgeDocument document) throws DocumentRepositoryException, KIMCorporaException {
-		docRepository.syncDocument(document.getDocument());
+	public void synchronizeDocument(KIMBridgeDocument document) throws DocumentRepositoryException, KIMCorporaException, KIMConnectionException {
+		try {
+			docRepository.syncDocument(document.getDocument());
+		} catch (DocumentRepositoryException|KIMCorporaException e) {
+			throw e;
+		} catch (Exception e) {
+			throw connectionLost(e);
+		}
 	}
 
 	/**
@@ -185,7 +269,7 @@ public class KIMConnector {
 	 * @param document Document to be removed.
 	 * @throws DocumentRepositoryException when the specified document could not be removed.
 	 */
-	public void removeDocument(KIMBridgeDocument document) throws DocumentRepositoryException {
+	public void removeDocument(KIMBridgeDocument document) throws DocumentRepositoryException, KIMConnectionException {
 		removeDocument(document.getId());
 	}
 
@@ -194,8 +278,14 @@ public class KIMConnector {
 	 * @param id Document ID.
 	 * @throws DocumentRepositoryException when the document could not be deleted.
 	 */
-	public void removeDocument(long id) throws DocumentRepositoryException {
-		docRepository.deleteDocument(id);
+	public void removeDocument(long id) throws DocumentRepositoryException, KIMConnectionException {
+		try {
+			docRepository.deleteDocument(id);
+		} catch (DocumentRepositoryException e) {
+			throw e;
+		} catch (Exception e) {
+			throw connectionLost(e);
+		}
 	}
 
 
@@ -207,10 +297,16 @@ public class KIMConnector {
 	 * @throws KIMQueryException when the document could not be fetched.
 	 * @throws KIMCorporaException when the new document data could not be prepared.
 	 */
-	public KIMBridgeDocument updateDocument(long id, KIMBridgeDocument updatedDocument) throws KIMQueryException, KIMCorporaException {
-		KIMBridgeDocument repositoryDocument = getDocument(id);
-		repositoryDocument.copyContentFrom(updatedDocument);
-		return repositoryDocument;
+	public KIMBridgeDocument updateDocument(long id, KIMBridgeDocument updatedDocument) throws KIMQueryException, KIMCorporaException, KIMConnectionException {
+		try {
+			KIMBridgeDocument repositoryDocument = getDocument(id);
+			repositoryDocument.copyContentFrom(updatedDocument);
+			return repositoryDocument;
+		} catch (KIMQueryException|KIMCorporaException e) {
+			throw e;
+		} catch (Exception e) {
+			throw connectionLost(e);
+		}
 	}
 
 
@@ -219,15 +315,21 @@ public class KIMConnector {
 	 * @param force Forces immediate synchronization.
 	 * @throws DocumentRepositoryException when the index cannot be synchronized.
 	 */
-	public void synchronizeIndex(boolean force) throws DocumentRepositoryException {
-		docRepository.synchronizeIndex(force);
+	public void synchronizeIndex(boolean force) throws DocumentRepositoryException, KIMConnectionException {
+		try {
+			docRepository.synchronizeIndex(force);
+		} catch (DocumentRepositoryException e) {
+			throw e;
+		} catch (Exception e) {
+			throw connectionLost(e);
+		}
 	}
 
 	/**
 	 * Immediately synchronizes the search index.
 	 * @throws DocumentRepositoryException when the index cannot be synchronized.
 	 */
-	public void synchonizeIndex() throws DocumentRepositoryException {
+	public void synchonizeIndex() throws DocumentRepositoryException, KIMConnectionException {
 		synchronizeIndex(true);
 	}
 }

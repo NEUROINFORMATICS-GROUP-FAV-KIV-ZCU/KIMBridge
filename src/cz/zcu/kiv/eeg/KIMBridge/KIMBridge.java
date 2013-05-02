@@ -58,7 +58,7 @@ public class KIMBridge {
 		try {
 			KIMBridgeDocument doc = kim.createDocumentFromString(text);
 			return doc;
-		} catch (KIMCorporaException e) {
+		} catch (KIMCorporaException|KIMConnectionException e) {
 			throw new KIMBridgeException("Error while creating the document.", e);
 		}
 	}
@@ -73,7 +73,7 @@ public class KIMBridge {
 	public KIMBridgeDocument createDocumentFromBytes(byte[] data, String extension) throws KIMBridgeException {
 		try {
 			return kim.createDocumentFromBinaryData(data, extension);
-		} catch (KIMCorporaException e) {
+		} catch (KIMCorporaException|KIMConnectionException e) {
 			throw new KIMBridgeException("Error while creating the document.", e);
 		}
 	}
@@ -112,6 +112,8 @@ public class KIMBridge {
 			throw new KIMBridgeException("Error while setting document metadata.", e);
 		} catch (DocumentRepositoryException e) {
 			throw new KIMBridgeException("Error while storing document.", e);
+		} catch (KIMConnectionException e) {
+			throw new KIMBridgeException("Connection to KIM lost.", e);
 		}
 	}
 
@@ -127,7 +129,7 @@ public class KIMBridge {
 			KIMBridgeDocument doc = kim.getDocument(id);
 			reannotateDocument(doc);
 			return doc;
-		} catch (KIMQueryException e) {
+		} catch (KIMQueryException|KIMConnectionException e) {
 			throw new KIMBridgeException("Error while fetching the document.", e);
 		}
 	}
@@ -144,7 +146,7 @@ public class KIMBridge {
 			kim.synchronizeDocument(document);
 		} catch (DocumentRepositoryException e) {
 			throw KIMBridgeException.synchronizingDocument(e);
-		} catch (RemoteException e) {
+		} catch (RemoteException|KIMConnectionException e) {
 			throw KIMBridgeException.annotatingDocument(e);
 		} catch (KIMCorporaException e) {
 			throw KIMBridgeException.settingMetadata(e);
@@ -165,7 +167,7 @@ public class KIMBridge {
 			return repoDoc;
 		} catch (KIMCorporaException e) {
 			throw KIMBridgeException.settingMetadata(e);
-		} catch (KIMQueryException e) {
+		} catch (KIMQueryException|KIMConnectionException e) {
 			throw KIMBridgeException.fetchingDocument(e);
 		}
 	}
@@ -226,6 +228,15 @@ public class KIMBridge {
 	 * @throws KIMBridgeException when an synchronization error occurs.
 	 */
 	public void annotateNewDocuments() throws KIMBridgeException {
+		if (!kim.isConnected()) {
+			try {
+				kim.connect();
+			} catch (KIMConnectionException e) {
+				logger.logMessage("KIM is not connected. Will retry at next document check.");
+				return;
+			}
+		}
+
 		logger.logMessage("Annotation of new documents has started.");
 		for (IDocumentRepository repository : repositories) {
 			logger.logMessage("Annotating new documents in %s repository has started.", repository.getId());
@@ -235,6 +246,8 @@ public class KIMBridge {
 				logger.logMessage("Annotating new documents in %s repository has finished.", repository.getId());
 				kim.synchronizeIndex(true);
 				logger.logMessage("KIM index synchronized.", repository.getId());
+			} catch (KIMConnectionException e) {
+				logger.logMessage("KIM disconnected.");
 			} catch (RepositoryException e) {
 				KIMBridgeException ke = KIMBridgeException.fetchingDocuments(e);
 				logger.logException(ke);

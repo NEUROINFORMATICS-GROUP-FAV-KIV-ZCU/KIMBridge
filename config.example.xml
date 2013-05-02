@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <kimBridge>
     <configuration>
-        <!-- New documents downloading & indexing period in milliseconds. Defaults to 5min. -->
-        <indexPeriod>300000</indexPeriod>
+        <!-- New documents downloading & indexing period in seconds. Defaults to 5min. -->
+        <indexPeriod>300</indexPeriod>
         <!-- Path to the synchronization state file. Must be absolute for KIMBridge service. -->
         <syncFile>./state.bin</syncFile>
     </configuration>
