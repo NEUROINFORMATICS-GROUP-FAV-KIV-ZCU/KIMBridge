@@ -201,15 +201,20 @@ public class LinkedInRepository implements IDocumentRepository {
 	 * @return New document when there are new comments available or {@code null}.
 	 */
 	private IDocument checkPost(PostInfo postInfo) {
-		Post post = linkedIn.getPost(postInfo.getId());
+		try {
+			Post post = linkedIn.getPost(postInfo.getId());
 
-		if (postInfo.hasNewComments(post)) {
-			postInfo.setCommentCountFromPost(post);
-			queue.postUpdated(postInfo);
-			LinkedInDocument doc = createDocument(post, postInfo);
-			doc.setNew(false);
-			return doc;
-		} else {
+			if (postInfo.hasNewComments(post)) {
+				postInfo.setCommentCountFromPost(post);
+				queue.postUpdated(postInfo);
+				LinkedInDocument doc = createDocument(post, postInfo);
+				doc.setNew(false);
+				return doc;
+			} else {
+				return null;
+			}
+		} catch (Exception e) {
+			// post probably not found, non fatal error
 			return null;
 		}
 	}
