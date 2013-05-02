@@ -99,7 +99,7 @@ public class KIMBridgeDaemon implements Daemon {
 		createKIMBridge();
 		createRepositories();
 
-		task = new KIMIndexTask(kimBridge);
+		task = new KIMIndexTask(kimBridge, logger);
 	}
 
 	private String buildArgs(String[] args) {
@@ -188,6 +188,8 @@ public class KIMBridgeDaemon implements Daemon {
 		scheduler.cancel();
 		kimBridge.saveRepositoryStates();
 		kimBridge.persistStates();
+
+		logger.logMessage("Shut down.");
 	}
 
 	/**
